@@ -1,4 +1,4 @@
-import defaultBackground from '../assets/blog-placeholder-1.webp';
+import logansPass from '../assets/logans_pass.jpg';
 
 /**
  * Hero copy and background settings for one page.
@@ -24,8 +24,11 @@ export interface HeroSectionConfig {
 export interface HeroConfig {
   home: HeroSectionConfig;
   blog: HeroSectionConfig;
-  tags: HeroSectionConfig;
   about: HeroSectionConfig;
+  /**
+   * Hero settings for tag archive pages.
+   */
+  tags: HeroSectionConfig;
   /**
    * Default hero image shared by all article pages.
    */
@@ -34,24 +37,24 @@ export interface HeroConfig {
 
 export const heroConfig: HeroConfig = {
   home: {
-    text: 'Build your ideas, one post at a time.',
-    subtitle: 'A clean Astro theme with centralized configuration.',
-    backgroundImage: defaultBackground.src,
+    text: 'engineer by day, photographer by night',
+    subtitle: 'telling the stories behind my favorite shots',
+    backgroundImage: logansPass.src,
   },
   blog: {
-    text: 'All Posts',
-    subtitle: 'Browse your writing archive.',
-    backgroundImage: defaultBackground.src,
-  },
-  tags: {
-    text: 'Tags',
-    subtitle: 'Explore topics by category and tag.',
-    backgroundImage: defaultBackground.src,
+    text: 'all journal entries',
+    subtitle: 'browse my stories',
+    backgroundImage: logansPass.src,
   },
   about: {
-    text: 'About',
-    subtitle: 'Introduce yourself and your work.',
-    backgroundImage: defaultBackground.src,
+    text: 'about',
+    subtitle: 'the mind behind the lens',
+    backgroundImage: logansPass.src,
   },
-  postDefaultBackground: defaultBackground.src,
+  tags: {
+    text: 'tags',
+    subtitle: 'browse posts by tag',
+    backgroundImage: logansPass.src,
+  },
+  postDefaultBackground: logansPass.src,
 };

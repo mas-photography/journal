@@ -1,10 +1,10 @@
 import type { ImageMetadata } from 'astro';
-import defaultAvatar from '../assets/profile.jpg';
+import avatarImg from '../assets/avatar.jpg';
 
 /**
  * Allowed social entry keys in profile configuration.
  */
-export type ProfileSocialKey = 'github' | 'x' | 'email' | 'website';
+export type ProfileSocialKey = 'github' | 'x' | 'email' | 'website' | 'instagram' | 'linkedin' | 'beli';
 
 /**
  * One social link item rendered on `/about`.
@@ -54,16 +54,16 @@ export interface ProfileConfig {
 }
 
 export const profileConfig: ProfileConfig = {
-  avatar: defaultAvatar,
-  name: 'Your Name',
-  title: 'Your Role / Focus',
-  bio: 'Write a short self-introduction here. This content is used in About and article schema.',
-  location: 'Your City',
-  email: 'you@example.com',
+  avatar: avatarImg,
+  name: 'Stephanie Ma | 马李天一',
+  title: 'Engineer / Writer / Photographer',
+  bio: 'Wrote for my high school newspaper & almost studied journalism in college, so this is my way of cultivating my inner-storyteller as an engineer while combining it with another creative outlet of mine: photography, along with my adventurous tendencies to explore the great outdoors with my husband :) Even incorporated a little engineering into this project by choosing to build this website with JavaScript & Astro instead of paying for a website builder.',
+  location: 'Houston, TX',
+  email: 'ma.s.photography26@gmail.com',
   githubProfileUrl: 'https://example.com',
   socials: [
-    { key: 'github', label: 'GitHub', url: 'https://example.com' },
-    { key: 'x', label: 'X', url: 'https://example.com' },
-    { key: 'website', label: 'Website', url: 'https://example.com' },
+    { key: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/ma.s_photography/' },
+    { key: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/in/stephanie-m-b4a1bb128/' },
+    { key: 'beli', label: 'Beli', url: 'https://beliapp.co/profile/stephanie_ma9' },
   ],
 };
