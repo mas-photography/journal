@@ -59,7 +59,7 @@ export const profileConfig: ProfileConfig = {
   title: 'Engineer / Writer / Photographer',
   bio: 'Wrote for my high school newspaper & almost studied journalism in college, so this is my way of cultivating my inner-storyteller as an engineer while combining it with another creative outlet of mine: photography, along with my adventurous tendencies to explore the great outdoors with my husband :) Even incorporated a little engineering into this project by choosing to build this website with JavaScript & Astro instead of paying for a website builder.',
   location: 'Houston, TX',
-  email: 'ma.s.photography26@gmail.com',
+  email: 'stephanie.ma.2022@gmail.com',
   githubProfileUrl: 'https://example.com',
   socials: [
     { key: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/ma.s_photography/' },
