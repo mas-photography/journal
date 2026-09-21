@@ -4,21 +4,34 @@ import type { HTMLAttributes } from 'astro/types';
 type Props = HTMLAttributes<'a'>;
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const subpath = pathname.match(/[^\/]+/g);
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+
+// Get current pathname and normalize trailing slashes
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+// Normalize target href
+const targetHref = typeof href === 'string' ? href.replace(/\/$/, '') || '/' : '/';
+
+// Normalize base URL
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+
+// Determine active state:
+// 1. Exact match (e.g., Home page `/journal`)
+// 2. Sub-path match (e.g., `/journal/blog/my-post` matching `/journal/blog`)
+const isActive =
+    currentPath === targetHref ||
+    (targetHref !== baseUrl && targetHref !== '/' && currentPath.startsWith(targetHref + '/'));
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} {...props}>
-	<slot />
+    <slot />
 </a>
 <style>
-	a {
-		display: inline-block;
-		text-decoration: none;
-	}
-	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
-	}
+    a {
+        display: inline-block;
+        text-decoration: none;
+    }
+    a.active {
+        font-weight: bolder;
+        text-decoration: underline;
+    }
 </style>
