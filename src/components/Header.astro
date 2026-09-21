@@ -7,26 +7,26 @@ interface Props {
 }
 
 const { transparent = true } = Astro.props;
-const baseUrl = import.meta.env.BASE_URL;
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+const currentPathname = Astro.url.pathname.replace(/\/$/, '') || baseUrl;
+
+// Normalize active checks for base path routing
+const isHomeActive = currentPathname === baseUrl;
+const isBlogActive = currentPathname === `${baseUrl}/blog` || currentPathname.startsWith(`${baseUrl}/blog/`);
+const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.startsWith(`${baseUrl}/about/`);
 ---
 
 <header class:list={[{ transparent }]} transition:persist transition:name="header" transition:animate="none">
     <div id="navigation-progress" aria-hidden="true"></div>
     <nav>
-        <h2><a href={baseUrl}>{siteTitle}</a></h2>
+        <h2><a href={baseUrl || '/'}>{siteTitle}</a></h2>
         <div class="internal-links">
-            <HeaderLink href={baseUrl}>Home</HeaderLink>
+            <HeaderLink href={baseUrl || '/'}>Home</HeaderLink>
             <HeaderLink href={`${baseUrl}/blog/`}>Journal</HeaderLink>
             <HeaderLink href={`${baseUrl}/about/`}>About</HeaderLink>
             <div class="nav-indicator" id="nav-indicator"></div>
         </div>
         <div class="header-actions">
-            <button id="search-btn" class="search-btn" aria-label="搜索">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-            </button>
             <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
                 <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
@@ -70,9 +70,9 @@ const baseUrl = import.meta.env.BASE_URL;
     <div id="mobile-nav-overlay" class="mobile-nav-overlay" aria-hidden="true"></div>
     <aside id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
         <nav class="mobile-nav-links" aria-label="移动端导航">
-            <a href={baseUrl} class="mobile-nav-link">Home</a>
-            <a href={`${baseUrl}/blog/`} class="mobile-nav-link">Journal</a>
-            <a href={`${baseUrl}/about/`} class="mobile-nav-link">About</a>
+            <a href={baseUrl || '/'} class:list={['mobile-nav-link', { active: isHomeActive }]}>Home</a>
+            <a href={`${baseUrl}/blog/`} class:list={['mobile-nav-link', { active: isBlogActive }]}>Journal</a>
+            <a href={`${baseUrl}/about/`} class:list={['mobile-nav-link', { active: isAboutActive }]}>About</a>
         </nav>
     </aside>
 </header>
@@ -336,31 +336,6 @@ const baseUrl = import.meta.env.BASE_URL;
         transform: translateX(0);
         pointer-events: auto;
     }
-    
-    /* Search Button Pulse/Rotate Interaction */
-    .search-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        border: none;
-        background: rgba(128, 128, 128, 0.1);
-        border-radius: 12px;
-        cursor: pointer;
-        color: inherit;
-        transition:
-            background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-            color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    
-    .search-btn:hover {
-        transform: rotate(90deg);
-    }
-    .search-btn:active {
-        transform: rotate(90deg);
-    }
 
     /* Theme Toggle Button */
     .theme-toggle-btn {
@@ -480,7 +455,6 @@ const baseUrl = import.meta.env.BASE_URL;
     header.transparent > nav .internal-links a,
     header.transparent > nav .header-actions > a,
     header.transparent > nav h2 a,
-    header.transparent > nav .search-btn,
     header.transparent > nav .theme-toggle-btn,
     header.transparent > nav .mobile-menu-btn {
         color: white;
@@ -515,7 +489,6 @@ const baseUrl = import.meta.env.BASE_URL;
     header.transparent.scrolled > nav .internal-links a,
     header.transparent.scrolled > nav .header-actions > a,
     header.transparent.scrolled > nav h2 a,
-    header.transparent.scrolled > nav .search-btn,
     header.transparent.scrolled > nav .theme-toggle-btn,
     header.transparent.scrolled > nav .mobile-menu-btn {
         color: var(--black);

@@ -23,9 +23,6 @@ const hasMath = /\$\$[\s\S]*?\$\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|\$[^$\n]+\$|
     body,
 );
 
-// 计算字数和阅读时间
-const wordCount = body ? body.replace(/[#*`~>\[\]\(\)\-\!\s]/g, '').length : 0;
-const readingTime = Math.ceil(wordCount / 400);
 
 // Resolve image dynamically from src/assets
 const images = import.meta.glob<{ default: ImageMetadata }>('/src/assets/*.{jpeg,jpg,png,gif,webp,JPG,JPEG,PNG}');
@@ -41,8 +38,6 @@ if (post.data.heroImage && images[post.data.heroImage]) {
     {...post.data}
     heroImage={resolvedHeroImage}
     headings={headings}
-    wordCount={wordCount}
-    readingTime={readingTime}
     seoDescription={seoDescription}
     loadKatexStyles={hasMath}
 >

@@ -3,6 +3,7 @@ title: "Short stories from high school"
 date: 2026-09-19
 description: "Creative Writing & English classes, 2018-2019"
 draft: false
+hidden: true
 categories:
   - "influences"
 tags:

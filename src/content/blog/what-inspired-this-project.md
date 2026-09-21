@@ -38,6 +38,6 @@ This gave me my eye for framing because the zoom on my phone cameras were so bad
   </div>
 </div>
 
-Another thing I've always wanted to do is build my own website using my moderate coding experience without paying a subscription for a something like Squarespace. I'm still definitely more comfortable using Python than JavaScript, but building this website was a fun way to integrate my engineering skills into my creative outlet! Not sure where any of this will take me, but I'm sticking to it for the sake of creating something meaningful to me: the stories behind my favorite photos.
+Another thing I've always wanted to do is build my own website using my moderate coding experience without paying a subscription for something like Squarespace. I'm still definitely more comfortable using Python than JavaScript, but building this website was a fun way to integrate my engineering skills into my creative outlet! Not sure where any of this will take me, but I'm sticking to it for the sake of creating something meaningful to me: the stories behind my favorite photos.
 
 ![The header photo: a frosty winter KS sunset](/journal/KS_winter_sunset.jpg)
