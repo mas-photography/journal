@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: any;
+  alt: string;
+  width?: number;
+  height?: number;
+  class?: string;
+}
+
+const { src, alt, width, height, class: className } = Astro.props;
+---
+
+<div class={`protected-photo-container ${className || ''}`}>
+  {typeof src === 'string' ? (
+    <img src={src} alt={alt} width={width} height={height} loading="lazy" />
+  ) : (
+    <Image src={src} alt={alt} width={width} height={height} />
+  )}
+  
+  <!-- Transparent overlay shield -->
+  <div class="protected-photo-shield"></div>
+  
+  <!-- Green screen overlay -->
+  <div class="protected-photo-greenscreen">
+    <span>PROTECTED</span>
+  </div>
+</div>

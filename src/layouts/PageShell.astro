@@ -9,107 +9,172 @@ import { locale as siteLocale } from '../config';
 type SchemaObject = Record<string, unknown>;
 
 interface Props {
-	title: string;
-	description: string;
-	image?: ImageMetadata | string;
-	type?: 'website' | 'article';
-	noindex?: boolean;
-	publishedTime?: Date | string;
-	modifiedTime?: Date | string;
-	section?: string;
-	tags?: string[];
-	schema?: SchemaObject | SchemaObject[];
-	canonical?: string | URL;
-	transparentHeader?: boolean;
-	lang?: string;
-	prevURL?: string;
-	nextURL?: string;
-	useMainWrapper?: boolean;
-	pageId?: 'home' | 'about' | 'blog-list' | 'tags-index' | 'tag-detail';
+    title: string;
+    description: string;
+    image?: ImageMetadata | string;
+    type?: 'website' | 'article';
+    noindex?: boolean;
+    publishedTime?: Date | string;
+    modifiedTime?: Date | string;
+    section?: string;
+    tags?: string[];
+    schema?: SchemaObject | SchemaObject[];
+    canonical?: string | URL;
+    transparentHeader?: boolean;
+    lang?: string;
+    prevURL?: string;
+    nextURL?: string;
+    useMainWrapper?: boolean;
+    pageId?: 'home' | 'about' | 'blog-list' | 'tags-index' | 'tag-detail';
 }
 
 const {
-	title,
-	description,
-	image,
-	type,
-	noindex,
-	publishedTime,
-	modifiedTime,
-	section,
-	tags,
-	schema,
-	canonical,
-	transparentHeader = true,
-	lang = siteLocale,
-	prevURL,
-	nextURL,
-	useMainWrapper = true,
-	pageId,
+    title,
+    description,
+    image,
+    type,
+    noindex,
+    publishedTime,
+    modifiedTime,
+    section,
+    tags,
+    schema,
+    canonical,
+    transparentHeader = true,
+    lang = siteLocale,
+    prevURL,
+    nextURL,
+    useMainWrapper = true,
+    pageId,
 } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={lang}>
-	<head>
-		<BaseHead
-			title={title}
-			description={description}
-			image={image}
-			type={type}
-			noindex={noindex}
-			publishedTime={publishedTime}
-			modifiedTime={modifiedTime}
-			section={section}
-			tags={tags}
-			schema={schema}
-			canonical={canonical}
-		/>
-		{prevURL && <link rel="prev" href={prevURL} />}
-		{nextURL && <link rel="next" href={nextURL} />}
-		<slot name="head" />
-	</head>
-	<body data-page-id={pageId}>
-		<Header transparent={transparentHeader} />
-		<div id="main-content">
-			{useMainWrapper ? (
-				<main class="page-shell-main">
-					<slot />
-				</main>
-			) : (
-				<slot />
-			)}
-			<Footer />
-		</div>
-		<SearchModal />
-		<script>
-			import { runCurrentPageEnhancements } from '../scripts/pages/registry';
-			import { setupMainScrollRestoration } from '../scripts/scroll-restoration';
+    <head>
+        <BaseHead
+            title={title}
+            description={description}
+            image={image}
+            type={type}
+            noindex={noindex}
+            publishedTime={publishedTime}
+            modifiedTime={modifiedTime}
+            section={section}
+            tags={tags}
+            schema={schema}
+            canonical={canonical}
+        />
+        {prevURL && <link rel="prev" href={prevURL} />}
+        {nextURL && <link rel="next" href={nextURL} />}
+        <slot name="head" />
+    </head>
+    <body data-page-id={pageId}>
+        <Header transparent={transparentHeader} />
+        <div id="main-content">
+            {useMainWrapper ? (
+                <main class="page-shell-main">
+                    <slot />
+                </main>
+            ) : (
+                <slot />
+            )}
+            <Footer />
+        </div>
+        <SearchModal />
+        <script>
+            import { runCurrentPageEnhancements } from '../scripts/pages/registry';
+            import { setupMainScrollRestoration } from '../scripts/scroll-restoration';
+            import { initPhotoProtection } from '../scripts/photo-protection';
 
-			setupMainScrollRestoration();
+            setupMainScrollRestoration();
 
-			const runtimeWindow = window as Window & {
-				__globalPageEnhancementsHandler?: () => void;
-			};
+            const runtimeWindow = window as Window & {
+                __globalPageEnhancementsHandler?: () => void;
+            };
 
-			const handlePageLoad = () => runCurrentPageEnhancements();
+            const handlePageLoad = () => {
+                runCurrentPageEnhancements();
+                initPhotoProtection();
+            };
 
-			if (runtimeWindow.__globalPageEnhancementsHandler) {
-				document.removeEventListener('astro:page-load', runtimeWindow.__globalPageEnhancementsHandler);
-			}
-			runtimeWindow.__globalPageEnhancementsHandler = handlePageLoad;
-			document.addEventListener('astro:page-load', handlePageLoad);
-			handlePageLoad();
-		</script>
-		<slot name="scripts" />
-	</body>
+            if (runtimeWindow.__globalPageEnhancementsHandler) {
+                document.removeEventListener('astro:page-load', runtimeWindow.__globalPageEnhancementsHandler);
+            }
+            runtimeWindow.__globalPageEnhancementsHandler = handlePageLoad;
+            document.addEventListener('astro:page-load', handlePageLoad);
+            handlePageLoad();
+        </script>
+        <slot name="scripts" />
+    </body>
 </html>
 
+<style is:global>
+    /* Prevent image drag and text selection on protected photos */
+    .protected-photo-container img {
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-drag: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* Container for relative positioning */
+    .protected-photo-container {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+    }
+
+    /* Invisible overlay shield blocking direct image clicks */
+    .protected-photo-shield {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        z-index: 2;
+    }
+
+    /* Green Screen Overlay */
+    .protected-photo-greenscreen {
+        position: absolute;
+        inset: 0;
+        background-color: #00ff00; /* Chroma green */
+        z-index: 3;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.05s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #000000;
+        font-weight: 700;
+        font-family: sans-serif;
+        letter-spacing: 1px;
+    }
+
+    /* Active State: turns overlay green */
+    body.screenshot-shield-active .protected-photo-greenscreen {
+        opacity: 1;
+    }
+
+    /* Print Protection */
+    @media print {
+        .protected-photo-greenscreen {
+            opacity: 1 !important;
+        }
+        .protected-photo-container img {
+            visibility: hidden !important;
+        }
+    }
+</style>
+
 <style>
-	.page-shell-main {
-		width: 100%;
-		max-width: 100%;
-		margin: 0;
-		padding: 0;
-	}
+    .page-shell-main {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
 </style>

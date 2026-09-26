@@ -110,7 +110,7 @@ function prefersReducedMotion() {
 	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function setupSearchLanding(navigation: ArticleNavigationController | null) {
+export function setupSearchLanding(navigation?: ArticleNavigationController | null) {
 	cleanupCurrentLanding?.();
 	cleanupCurrentLanding = null;
 
