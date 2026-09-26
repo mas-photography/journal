@@ -13,11 +13,11 @@ heroImage: "/journal/flowers.jpg"
 ---
 ![Golden hour at Texas Hill Country State Natural Area, March 2025](/journal/first.jpg)
 
-This was the first picture I took on my Sony camera that I actually liked. Right before this hike, I just finished my second round interview for the job I have now. The stress of interviewing for a career transition while severely burnt out from my first job out of college and frustration that I couldn't use one of the nicest cameras on the market convinced me to finally learn the camera settings a month after receiving it as a birthday gift. This picture resembles a major turning point for both my engineering career and photography hobby! 
+This was the first picture I took on my Sony camera that I actually liked. Right before this hike, I had just finished my second round interview for the job I have now. The stress of interviewing for a career transition while severely burnt out from my first job out of college and frustration that I couldn't use one of the nicest cameras on the market convinced me to finally learn the camera settings a month after receiving it as a birthday gift. This picture resembles a major turning point for both my engineering career and photography hobby! 
 
 ![My parents visiting my new apartment in Houston, June 2025](/journal/parents.jpg)
 
-A couple months later, my parents visited my new apartment after I settled in to my new job. They were very impressed with how authentic Houston's Chinatown restaurants are! I took them to Mala Sichuan after this photo. Shameless plug: follow me on Beli for other restaurant recs.
+A couple months later, my parents visited my new apartment after I settled into my new job. They were very impressed with how authentic Houston's Chinatown restaurants are! I took them to Mala Sichuan after this photo. Shameless plug: follow me on Beli for other restaurant recs.
 
 ![New proud owner of the vise I made in an Intro to Machining class at K-State, June 2025](/journal/vise.jpg)
 
@@ -29,11 +29,11 @@ These last 6 photos are all from Olympic National Park - the first National Park
 
 ![Hurricane Ridge (fun fact: there was a mountain lion attack here 1 week after our visit), July 2025](/journal/hurricane_ridge.jpg)
 
-Trailhead parking at Hurricane Ridge is so competitive that we got up at 4 AM so we could beat the crowd. This hike had great views the whole way because it starts at such high elevation above the tree line, so I took ~300 photos on this hike alone. I’m sucker for good natural lighting though, so this one is my favorite even though it’s not the summit. I was shocked to hear there was a mountain lion attack on this trail because it’s so crowded and exposed. We got very lucky with timing.
+Trailhead parking at Hurricane Ridge is so competitive that we got up at 4 AM so we could beat the crowd. This hike had great views the whole way because it starts at such high elevation above the tree line, so I took ~300 photos on this hike alone. I’m a sucker for good natural lighting though, so this one is my favorite even though it’s not the summit. I was shocked to hear there was a mountain lion attack on this trail because it’s so crowded and exposed. We got very lucky with timing.
 
 ![Sol Duc Falls (fun fact: a teenager slipped on these rocks and died 1 month before our visit), July 2025](/journal/sol_duc_falls.jpg)
 
-This was one of the strongest waterfalls I’ve ever seen, second only to Grand Canyon of the Yellowstone. The rock, smoothed by the force of the water, is also sprinkled with green moss and tiny ferns. There’s a wooden fence lining the edge of the trail to keep people from getting too close, and I stepped onto the first rung so it locked my thigh on the second rung while I got this incredible angle. No regrets because I was safe and I still got the perfect shot! Three families asked me to take photos of them. 
+This was one of the strongest waterfalls I’ve ever seen, second only to Grand Canyon of the Yellowstone. The rock, smoothed by the force of the water, is also sprinkled with green moss and tiny ferns. There’s a wooden fence lining the edge of the trail to keep people from getting too close, and I stepped onto the first rung so it braced my thigh on the second rung for stability while I got this incredible angle. No regrets because I was safe and I still got the perfect shot! Three families asked me to take photos of them. 
 
 ![Field of flowers on the hike to PJ Lake, July 2025](/journal/flowers.jpg)
 
