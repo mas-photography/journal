@@ -4,7 +4,6 @@ import type { CollectionEntry } from 'astro:content';
 import DraftBadge from '../components/DraftBadge.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import HeroHeader from '../components/HeroHeader.astro';
-import ProtectedImage from '../components/ProtectedImage.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import PageShell from './PageShell.astro';
 import { heroConfig, locale, profileConfig, siteTitle } from '../config';
@@ -325,7 +324,6 @@ const articleSchema = {
                 :global(#main-content > footer),
                 :global(.hero-header),
                 :global(.sidebar-container),
-                :global(#lightbox),
                 :global(.search-overlay) {
                     display: none !important;
                 }
@@ -737,18 +735,12 @@ const articleSchema = {
         </div>
     </div>
         
-    <!-- Lightbox HTML -->
-    <div id="lightbox" class="lightbox-overlay">
-        <span class="lightbox-close">&times;</span>
-        <ProtectedImage class="lightbox-image" src="" alt="Lightbox" />
-    </div>
-
     <Fragment slot="scripts">
         <script>
             import { setupToc } from '../scripts/toc';
             import { setupCodeBlocks } from '../scripts/code-block';
             import { prepareMermaidForPrint, setupMermaid } from '../scripts/mermaid';
-            import { setupLightbox } from '../scripts/lightbox';
+            import { setupMarkdownImages } from '../scripts/markdown-images';
             import { setupSearchLanding } from '../scripts/search/landing';
 
             const prepareCodeHighlightForPrint = () => {
@@ -897,10 +889,9 @@ const articleSchema = {
             setupToc();
             setupCodeBlocks();
             setupMermaid();
-            setupLightbox();
+            setupMarkdownImages();
             setupSearchLanding();
             setupPdfExport();
         </script>
     </Fragment>
 </PageShell>
-
