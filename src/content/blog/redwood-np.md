@@ -2,7 +2,7 @@
 title: "Tallest trees in the world and then some: Redwood National & State Parks"
 date: 2026-10-03
 description: "Labor Day Weekend 2025"
-draft: false
+draft: true
 categories:
   - "national parks"
 tags:
