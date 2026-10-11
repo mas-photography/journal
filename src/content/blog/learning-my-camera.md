@@ -2,7 +2,7 @@
 title: "The learning curve: my first months with the Sony"
 date: 2026-09-26
 description: "my first favorite shots on my Sony camera"
-draft: false
+draft: true
 categories:
   - "milestones"
 tags:
