@@ -28,6 +28,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.5",
     "fuse.js": "^7.1.0",
+    "howler": "^2.2.4",
     "katex": "^0.16.28",
     "mermaid": "^11.16.0",
     "rehype-katex": "^7.0.1",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@types/howler": "^2.2.13",
     "typescript": "^5.9.2",
     "vitest": "^3.2.7",
     "wrangler": "4.110.0",
