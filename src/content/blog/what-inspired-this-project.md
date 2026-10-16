@@ -2,7 +2,7 @@
 title: "What inspired this project?"
 date: 2026-09-18
 description: "short answer: nostalgia, long answer:"
-draft: false
+draft: true
 categories:
   - "influences"
 tags:
