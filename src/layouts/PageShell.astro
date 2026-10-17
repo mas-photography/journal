@@ -26,6 +26,7 @@ interface Props {
     nextURL?: string;
     useMainWrapper?: boolean;
     pageId?: 'home' | 'about' | 'blog-list' | 'tags-index' | 'tag-detail';
+    hideFooter?: boolean;
 }
 
 const {
@@ -46,6 +47,7 @@ const {
     nextURL,
     useMainWrapper = true,
     pageId,
+    hideFooter = false,
 } = Astro.props;
 ---
 
@@ -79,7 +81,7 @@ const {
             ) : (
                 <slot />
             )}
-            <Footer />
+            {!hideFooter && <Footer />}
         </div>
         <SearchModal />
         <script>
