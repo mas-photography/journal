@@ -1,8 +1,5 @@
 ---
 import PageShell from '../../layouts/PageShell.astro';
-
-// Your site lives under /journal, so build image paths from the base URL.
-// This strips any trailing slash so we don't end up with "//".
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
@@ -14,8 +11,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   .sky {
     display: block;
     width: 100%;
-    /* Fill the screen below the header. Change 64px to your header's real height. */
-    height: calc(100vh - 64px);
+    height: 100dvh;
     object-fit: cover;
     background-color: #000;
   }
