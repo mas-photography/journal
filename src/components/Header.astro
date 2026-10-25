@@ -12,7 +12,7 @@ const currentPathname = Astro.url.pathname.replace(/\/$/, '') || baseUrl;
 
 // Normalize active checks for base path routing
 const isHomeActive = currentPathname === baseUrl;
-const isBlogActive = currentPathname === `${baseUrl}/blog` || currentPathname.startsWith(`${baseUrl}/blog/`);
+const isBlogActive = currentPathname === `${baseUrl}/gallery` || currentPathname.startsWith(`${baseUrl}/gallery/`);
 const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.startsWith(`${baseUrl}/about/`);
 ---
 
@@ -22,7 +22,7 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
         <h2><a href={baseUrl || '/'}>{siteTitle}</a></h2>
         <div class="internal-links">
             <HeaderLink href={baseUrl || '/'}>Home</HeaderLink>
-            <HeaderLink href={`${baseUrl}/blog/`}>Journal</HeaderLink>
+            <HeaderLink href={`${baseUrl}/gallery/`}>Gallery</HeaderLink>
             <HeaderLink href={`${baseUrl}/about/`}>About</HeaderLink>
             <div class="nav-indicator" id="nav-indicator"></div>
         </div>
@@ -71,7 +71,7 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
     <aside id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
         <nav class="mobile-nav-links" aria-label="移动端导航">
             <a href={baseUrl || '/'} class:list={['mobile-nav-link', { active: isHomeActive }]}>Home</a>
-            <a href={`${baseUrl}/blog/`} class:list={['mobile-nav-link', { active: isBlogActive }]}>Journal</a>
+            <a href={`${baseUrl}/gallery/`} class:list={['mobile-nav-link', { active: isBlogActive }]}>Gallery</a>
             <a href={`${baseUrl}/about/`} class:list={['mobile-nav-link', { active: isAboutActive }]}>About</a>
         </nav>
     </aside>

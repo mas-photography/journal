@@ -169,7 +169,7 @@ function updateHeaderState() {
         let oldActive: HTMLAnchorElement | null = null;
         let newActive: HTMLAnchorElement | null = null;
 
-        // Base path is the first link in navigation (Home root, e.g. /journal or /)
+        // Base path is the first link in navigation (Home root, e.g. /gallery or /)
         const basePath = links.length > 0 ? normalize(links[0].pathname) : '/';
 
         links.forEach((link) => {

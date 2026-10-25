@@ -2,13 +2,10 @@
 import ContentCard from '../components/ContentCard.astro';
 import HeroHeader from '../components/HeroHeader.astro';
 import PageShell from '../layouts/PageShell.astro';
-import PostListItem from '../components/PostListItem.astro';
 import { heroConfig, locale, siteDescription, siteTitle } from '../config';
-import { getBlogPosts } from '../lib/content/blog';
 
-const posts = await getBlogPosts();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const siteURL = Astro.site ?? Astro.url;
-const recentPosts = posts.filter(post => post.id === 'what-inspired-this-project');
 const homeHero = heroConfig.home;
 const webSiteSchema = {
   '@context': 'https://schema.org',
@@ -42,7 +39,7 @@ const webSiteSchema = {
       padding: 2em;
     }
 
-    .blog-link {
+    .gallery-link {
       display: block;
       text-align: center;
       color: var(--color-text);
@@ -52,173 +49,11 @@ const webSiteSchema = {
       transition: color 0.3s;
     }
 
-    .blog-link:hover {
+    .gallery-link:hover {
       color: var(--accent);
-    }
-
-    .recent-posts-section {
-      padding-top: 1em;
-    }
-
-    .home-posts-list.home-stagger-ready :global(.home-post-item) {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item) {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(1)) {
-      transition-delay: 0.1s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(2)) {
-      transition-delay: 0.2s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(3)) {
-      transition-delay: 0.3s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(4)) {
-      transition-delay: 0.4s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(5)) {
-      transition-delay: 0.5s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(6)) {
-      transition-delay: 0.6s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(7)) {
-      transition-delay: 0.7s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(8)) {
-      transition-delay: 0.8s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(9)) {
-      transition-delay: 0.9s;
-    }
-    .home-posts-list.home-stagger-ready.visible :global(.home-post-item:nth-child(10)) {
-      transition-delay: 1s;
-    }
-
-    .home-posts-list :global(.home-post-item) {
-      padding: 1.2em 0;
-      border-bottom: 1px solid var(--color-border-subtle);
-      transition: opacity 0.5s ease-out, transform 0.5s ease-out, background 0.2s;
-    }
-
-    .home-posts-list :global(.home-post-item:last-child) {
-      border-bottom: none;
-    }
-
-    .home-posts-list :global(.home-post-item:hover) {
-      background: var(--color-surface-elevated);
-      margin: 0 -1em;
-      padding-left: 1em;
-      padding-right: 1em;
-      border-radius: 8px;
-    }
-
-    .home-posts-list :global(.home-post-title) {
-      font-size: 1.2em;
-      font-weight: 600;
-      margin: 0 0 0.5em 0;
-    }
-
-    .home-posts-list :global(.home-post-title a) {
-      color: var(--color-text);
-      text-decoration: none;
-      display: inline;
-      background-image: linear-gradient(var(--accent), var(--accent));
-      background-position: 0% 100%;
-      background-repeat: no-repeat;
-      background-size: 0% 2px;
-      transition: background-size 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s ease;
-      padding-bottom: 2px;
-    }
-
-    .home-posts-list :global(.home-post-item:hover .home-post-title a) {
-      color: var(--accent);
-      background-size: 100% 2px;
-    }
-
-    .home-posts-list :global(.home-post-meta) {
-      display: flex;
-      align-items: center;
-      gap: 1em;
-      font-size: 0.85em;
-      color: var(--color-text-tertiary);
-      flex-wrap: wrap;
-    }
-
-    .home-posts-list :global(.home-post-meta-item) {
-      display: flex;
-      align-items: center;
-      gap: 0.3em;
-    }
-
-    .home-posts-list :global(.home-post-meta-item svg) {
-      width: 14px;
-      height: 14px;
-    }
-
-    .home-posts-list :global(.home-post-tags) {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4em;
-    }
-
-    .home-posts-list :global(.home-tag-link) {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.2em;
-      padding: 2px 8px;
-      background: var(--color-tag-bg);
-      color: var(--color-tag-text);
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.85em;
-      transition:
-        background-color 0.3s cubic-bezier(0.2, 0, 0, 1),
-        color 0.3s cubic-bezier(0.2, 0, 0, 1),
-        transform 0.3s cubic-bezier(0.2, 0, 0, 1),
-        box-shadow 0.3s cubic-bezier(0.2, 0, 0, 1);
-      transform-origin: center;
-    }
-
-    .home-posts-list :global(.home-tag-link:hover) {
-      background: var(--accent);
-      color: white;
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 3px 8px rgba(var(--accent-rgb), 0.25);
-    }
-
-    .home-posts-list :global(.home-tag-link:active) {
-      transform: translateY(0) scale(0.97);
-    }
-
-    .home-posts-list :global(.home-tag-link svg) {
-      width: 12px;
-      height: 12px;
-    }
-
-    .empty-state {
-      margin: 1.2em 0;
-      color: var(--color-text-secondary);
-      font-size: 0.95em;
-      line-height: 1.7;
-      text-align: center;
-      padding: 1.4em;
-      border: 1px dashed var(--color-border);
-      border-radius: 12px;
-      background: var(--color-surface-elevated);
     }
 
     @media (max-width: 720px) {
-      .hero-title {
-        font-size: 1.5em;
-      }
-
       .stats-container {
         padding: 1.5em;
         border-radius: 0;
@@ -236,35 +71,8 @@ const webSiteSchema = {
   <div class="stats-wrapper">
     <ContentCard id="stats-card">
       <div class="stats-container">
-        <div class="recent-posts-section">
-          {recentPosts.length > 0 ? (
-            <>
-              <div class="home-posts-list">
-                {recentPosts.map((post) => (
-                  <PostListItem
-                    post={post}
-                    titleTag="h3"
-                    articleClass="home-post-item"
-                    titleClass="home-post-title"
-                    showExcerpt={false}
-                    metaContainerClass="home-post-meta"
-                    metaItemClass="home-post-meta-item"
-                    metaTagsClass="home-post-tags"
-                    tagLinkClass="home-tag-link hover-scale"
-                    tagLimit={3}
-                  />
-                ))}
-              </div>
-              <a href={`${import.meta.env.BASE_URL}/blog/`} class="blog-link" style="margin-top: 1em;">all journal entries ⇗</a>
-            </>
-          ) : (
-            <p class="empty-state">
-              这里还没有文章。请在 <code>src/content/blog/</code> 新建 <code>.md</code> 或 <code>.mdx</code> 文件。
-            </p>
-          )}
-        </div>
+        <a href={`${base}/gallery/`} class="gallery-link">enter gallery with sound on ⇗</a>
       </div>
     </ContentCard>
   </div>
-
 </PageShell>

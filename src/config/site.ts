@@ -35,7 +35,7 @@ export interface SiteConfig {
 export const siteConfig: SiteConfig = {
   siteUrl: 'https://mas-photography.github.io/journal/',
   siteTitle: 'ma.s_photography',
-  siteTitleSuffix: 'photography journal',
+  siteTitleSuffix: 'photography gallery',
   siteDescription: 'the stories behind my favorite shots',
   locale: 'en-US',
   headerGithubRepoUrl: 'https://github.com/mas-photography/journal',

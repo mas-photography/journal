@@ -1,18 +1,681 @@
 ---
 import PageShell from '../../layouts/PageShell.astro';
+import { sky, albums } from '../../data/gallery';
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Size of each photo tile on the sky, in sky pixels.
+const TILE = 80;
+// How far apart photos sit in the spiral.
+const SPREAD = TILE * 0.65;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+// Arrange each album's photos in a sunflower spiral around its x/y point.
+const layout = albums.map((album) => {
+  const photos = album.photos.map((photo, i) => {
+    const r = SPREAD * Math.sqrt(i + 0.5);
+    const a = i * GOLDEN_ANGLE;
+    return { ...photo, dx: Math.round(r * Math.cos(a)), dy: Math.round(r * Math.sin(a)) };
+  });
+  const radius = Math.round(SPREAD * Math.sqrt(album.photos.length) + TILE * 0.75);
+  return { ...album, photos, radius };
+});
 ---
 
 <PageShell title="Gallery" description="my photos arranged across the night sky" hideFooter>
-  <img class="sky" src={`${base}/milky_way.jpg`} alt="The Milky Way" />
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+      <div
+        class="world"
+        id="world"
+        data-w={sky.width}
+        data-h={sky.height}
+        style={`width:${sky.width}px;height:${sky.height}px;--tile:${TILE}px;`}
+      >
+        <img
+          class="sky"
+          src={`${base}/${sky.src}`}
+          alt="The Milky Way"
+          width={sky.width}
+          height={sky.height}
+          draggable="false"
+        />
+
+        {layout.map((album) => (
+          <div
+            class="cluster"
+            data-slug={album.slug}
+            data-radius={album.radius}
+            style={`left:${album.x * 100}%;top:${album.y * 100}%;`}
+          >
+            {album.photos.map((photo, i) => (
+              <button
+                class="photo"
+                type="button"
+                data-index={i}
+                data-caption={photo.caption ?? ''}
+                aria-label={photo.alt}
+                style={`transform:translate(calc(${photo.dx}px - 50%), calc(${photo.dy}px - 50%)) rotate(var(--photo-rot, 0deg));`}
+              >
+                <img data-src={`${base}/${photo.src}`} alt={photo.alt} draggable="false" />
+              </button>
+            ))}
+          </div>
+        ))}
+
+        <div class="pick-marker" id="pick-marker" hidden></div>
+      </div>
+    </div>
+
+    <nav class="menu" id="menu" aria-label="Albums">
+      <div class="menu-title">Albums</div>
+      <button class="menu-item active" type="button" data-target="">Whole sky</button>
+      {layout.map((album) => (
+        <button class="menu-item" type="button" data-target={album.slug}>{album.title}</button>
+      ))}
+    </nav>
+
+    <div class="bar">
+      <button class="pill" id="back" type="button" hidden>← Whole sky</button>
+      <button class="pill albums-toggle" id="albums-toggle" type="button" aria-expanded="false">Albums</button>
+    </div>
+
+    <div class="pick-readout" id="pick-readout" hidden>Pick mode: click the sky to get coordinates.</div>
+  </div>
+
+  <dialog class="lightbox" id="lightbox">
+    <button class="lb-close" type="button" aria-label="Close">×</button>
+    <button class="lb-prev" type="button" aria-label="Previous photo">‹</button>
+    <figure>
+      <img id="lb-img" alt="" />
+      <figcaption id="lb-caption"></figcaption>
+    </figure>
+    <button class="lb-next" type="button" aria-label="Next photo">›</button>
+  </dialog>
 </PageShell>
 
 <style>
+  .viewport {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: #000;
+    touch-action: none;
+    user-select: none;
+    cursor: grab;
+  }
+  .viewport.dragging {
+    cursor: grabbing;
+  }
+  .viewport.pick {
+    cursor: crosshair;
+  }
+
+  /* The stage turns sideways on upright phones; everything on the sky lives inside it */
+  .stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .viewport.rotated .stage {
+    left: 100%;
+    transform: rotate(90deg);
+    transform-origin: 0 0;
+  }
+  .viewport.rotated {
+    --photo-rot: -90deg;
+  }
+
+  .world {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: 0 0;
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .viewport.dragging .world,
+  .world.instant {
+    transition: none;
+  }
+
   .sky {
     display: block;
     width: 100%;
+    height: 100%;
+  }
+
+  /* Albums are invisible on the sky until opened */
+  .cluster {
+    position: absolute;
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  .cluster.open {
+    display: block;
+  }
+  .viewport.pick .cluster {
+    display: block;
+    pointer-events: none;
+  }
+
+  .photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--tile);
+    height: var(--tile);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Small star shown while a photo loads */
+  .photo::before {
+    content: '';
+    width: 14%;
+    height: 14%;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 calc(var(--tile) * 0.2) calc(var(--tile) * 0.05) rgba(255, 255, 255, 0.6);
+  }
+  .photo.loaded::before {
+    display: none;
+  }
+  .photo img {
+    display: none;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 2px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    transition: transform 0.2s;
+  }
+  .photo.loaded img {
+    display: block;
+  }
+  .photo:hover img {
+    transform: scale(1.06);
+  }
+
+  /* Album menu: a panel on laptops */
+  .menu {
+    position: absolute;
+    top: 96px;
+    left: 16px;
+    width: 230px;
+    max-height: calc(100dvh - 180px);
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    touch-action: pan-y;
+    z-index: 3;
+  }
+  .menu-title {
+    margin: 0 0 6px 8px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+  .menu-item {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .menu-item.active {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .bar {
+    position: absolute;
+    left: 50%;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+  }
+  .pill {
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .albums-toggle {
+    display: none;
+  }
+
+  /* Album menu: a bottom sheet on phones and small screens */
+  @media (max-width: 768px), (pointer: coarse) {
+    .menu {
+      top: auto;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      max-height: 60dvh;
+      padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
+      border-radius: 14px 14px 0 0;
+      background: rgba(10, 12, 20, 0.94);
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .menu.sheet-open {
+      transform: translateY(0);
+    }
+    .menu-item {
+      padding: 12px 8px;
+      font-size: 16px;
+    }
+    .albums-toggle {
+      display: inline-block;
+    }
+  }
+
+  .pick-readout {
+    position: absolute;
+    top: 96px;
+    right: 16px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-family: monospace;
+    font-size: 14px;
+    z-index: 3;
+  }
+  .pick-marker {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ff4d6d;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(calc(1 / var(--s, 1)));
+    pointer-events: none;
+  }
+
+  .lightbox {
+    width: 100vw;
     height: 100dvh;
-    object-fit: cover;
-    background-color: #000;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(0, 0, 0, 0.92);
+    color: #fff;
+  }
+  .lightbox[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox::backdrop {
+    background: transparent;
+  }
+  .lightbox figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100vw - 96px);
+  }
+  #lb-img {
+    max-width: 100%;
+    max-height: calc(100dvh - 120px);
+    object-fit: contain;
+  }
+  #lb-caption {
+    font-size: 15px;
+    opacity: 0.85;
+    text-align: center;
+  }
+  .lb-prev,
+  .lb-next,
+  .lb-close {
+    position: absolute;
+    padding: 8px 16px;
+    border: 0;
+    background: none;
+    color: #fff;
+    font-size: 44px;
+    line-height: 1;
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .lb-prev {
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .lb-next {
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .lb-close {
+    top: 8px;
+    right: 8px;
+    font-size: 36px;
   }
 </style>
+
+<script>
+  const viewport = document.getElementById('viewport') as HTMLElement;
+  const stage = document.getElementById('stage') as HTMLElement;
+  const world = document.getElementById('world') as HTMLElement;
+  const menu = document.getElementById('menu') as HTMLElement;
+  const backBtn = document.getElementById('back') as HTMLButtonElement;
+  const toggleBtn = document.getElementById('albums-toggle') as HTMLButtonElement;
+  const readout = document.getElementById('pick-readout') as HTMLElement;
+  const marker = document.getElementById('pick-marker') as HTMLElement;
+  const lightbox = document.getElementById('lightbox') as HTMLDialogElement;
+  const lbImg = document.getElementById('lb-img') as HTMLImageElement;
+  const lbCaption = document.getElementById('lb-caption') as HTMLElement;
+
+  const W = Number(world.dataset.w);
+  const H = Number(world.dataset.h);
+  const pickMode = new URLSearchParams(location.search).has('pick');
+
+  // Turn the sky sideways only on upright touchscreens (phones), never laptops
+  const phoneUpright = window.matchMedia('(orientation: portrait) and (pointer: coarse)');
+  let rotated = false;
+
+  // Camera: scale and position of the sky inside the stage
+  let s = 1;
+  let tx = 0;
+  let ty = 0;
+  let current: HTMLElement | null = null; // the album we're zoomed into
+
+  function setupStage() {
+    rotated = phoneUpright.matches;
+    viewport.classList.toggle('rotated', rotated);
+    if (rotated) {
+      stage.style.width = `${viewport.clientHeight}px`;
+      stage.style.height = `${viewport.clientWidth}px`;
+    } else {
+      stage.style.width = '';
+      stage.style.height = '';
+    }
+  }
+
+  function apply(instant = false) {
+    if (instant) world.classList.add('instant');
+    world.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+    world.style.setProperty('--s', String(s));
+    if (instant) {
+      void world.offsetWidth;
+      world.classList.remove('instant');
+    }
+  }
+
+  // Keep the sky covering the screen, so no black edges show
+  function clamp() {
+    const sw = stage.clientWidth;
+    const sh = stage.clientHeight;
+    const ww = W * s;
+    const wh = H * s;
+    tx = ww >= sw ? Math.min(0, Math.max(sw - ww, tx)) : (sw - ww) / 2;
+    ty = wh >= sh ? Math.min(0, Math.max(sh - wh, ty)) : (sh - wh) / 2;
+  }
+
+  function coverScale() {
+    return Math.max(stage.clientWidth / W, stage.clientHeight / H);
+  }
+
+  function setActive() {
+    const slug = current?.dataset.slug ?? '';
+    menu.querySelectorAll<HTMLElement>('.menu-item').forEach((item) => {
+      item.classList.toggle('active', item.dataset.target === slug);
+    });
+  }
+
+  function showOverview(instant = false) {
+    current?.classList.remove('open');
+    current = null;
+    s = coverScale();
+    tx = (stage.clientWidth - W * s) / 2;
+    ty = (stage.clientHeight - H * s) / 2;
+    backBtn.hidden = true;
+    setActive();
+    apply(instant);
+  }
+
+  // Photos only download the first time their album is opened
+  function loadPhotos(cluster: HTMLElement) {
+    cluster.querySelectorAll<HTMLImageElement>('.photo img').forEach((img) => {
+      if (img.getAttribute('src')) return;
+      const btn = img.parentElement as HTMLElement;
+      img.onload = () => btn.classList.add('loaded');
+      img.src = img.dataset.src ?? '';
+    });
+  }
+
+  function zoomTo(cluster: HTMLElement, instant = false) {
+    current?.classList.remove('open');
+    current = cluster;
+    cluster.classList.add('open');
+    loadPhotos(cluster);
+    const sw = stage.clientWidth;
+    const sh = stage.clientHeight;
+    const radius = Number(cluster.dataset.radius);
+    s = Math.max(coverScale(), (Math.min(sw, sh) * 0.9) / (radius * 2));
+    tx = sw / 2 - cluster.offsetLeft * s;
+    ty = sh / 2 - cluster.offsetTop * s;
+    clamp();
+    backBtn.hidden = false;
+    setActive();
+    apply(instant);
+  }
+
+  // Where a click landed on the sky, as fractions from 0 to 1
+  function skyPoint(e: MouseEvent) {
+    const r = world.getBoundingClientRect();
+    if (rotated) {
+      return { x: (e.clientY - r.top) / r.height, y: (r.right - e.clientX) / r.width };
+    }
+    return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+  }
+
+  // Album menu and phone sheet
+  function closeSheet() {
+    menu.classList.remove('sheet-open');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    const open = menu.classList.toggle('sheet-open');
+    toggleBtn.setAttribute('aria-expanded', String(open));
+  });
+
+  menu.addEventListener('click', (e) => {
+    const item = (e.target as HTMLElement).closest<HTMLElement>('.menu-item');
+    if (!item) return;
+    const slug = item.dataset.target;
+    const cluster = slug ? world.querySelector<HTMLElement>(`.cluster[data-slug="${slug}"]`) : null;
+    if (cluster) zoomTo(cluster);
+    else showOverview();
+    closeSheet();
+  });
+
+  backBtn.addEventListener('click', () => showOverview());
+
+  // Drag to pan
+  let down: { x: number; y: number; tx: number; ty: number } | null = null;
+  let dragged = false;
+
+  viewport.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest('.menu, .bar')) return;
+    down = { x: e.clientX, y: e.clientY, tx, ty };
+    dragged = false;
+  });
+
+  viewport.addEventListener('pointermove', (e) => {
+    if (!down) return;
+    const dx = e.clientX - down.x;
+    const dy = e.clientY - down.y;
+    if (!dragged && Math.hypot(dx, dy) < 6) return;
+    if (!dragged) {
+      dragged = true;
+      viewport.classList.add('dragging');
+      viewport.setPointerCapture(e.pointerId);
+    }
+    // On a turned stage, screen directions map to different sky directions
+    const [mx, my] = rotated ? [dy, -dx] : [dx, dy];
+    tx = down.tx + mx;
+    ty = down.ty + my;
+    clamp();
+    apply();
+  });
+
+  const endDrag = () => {
+    down = null;
+    viewport.classList.remove('dragging');
+  };
+  viewport.addEventListener('pointerup', endDrag);
+  viewport.addEventListener('pointercancel', endDrag);
+
+  // Clicks on the sky
+  viewport.addEventListener('click', (e) => {
+    if (dragged) {
+      dragged = false;
+      return;
+    }
+    const target = e.target as HTMLElement;
+    if (target.closest('.menu, .bar')) return;
+
+    if (menu.classList.contains('sheet-open')) {
+      closeSheet();
+      return;
+    }
+
+    if (pickMode) {
+      pick(e);
+      return;
+    }
+
+    const photo = target.closest<HTMLElement>('.photo');
+    if (photo && current && current.contains(photo)) {
+      openLightbox(current, Number(photo.dataset.index));
+      return;
+    }
+
+    // Clicking empty sky well away from the open album zooms back out
+    if (current) {
+      const p = skyPoint(e);
+      const dist = Math.hypot(p.x * W - current.offsetLeft, p.y * H - current.offsetTop);
+      if (dist > Number(current.dataset.radius)) showOverview();
+    }
+  });
+
+  // Pick mode: click the sky to get x/y as fractions
+  function pick(e: MouseEvent) {
+    const p = skyPoint(e);
+    const x = p.x.toFixed(3);
+    const y = p.y.toFixed(3);
+    marker.hidden = false;
+    marker.style.left = `${p.x * 100}%`;
+    marker.style.top = `${p.y * 100}%`;
+    readout.textContent = `x: ${x}, y: ${y}`;
+    navigator.clipboard
+      ?.writeText(`x: ${x},\n    y: ${y},`)
+      .then(() => {
+        readout.textContent = `x: ${x}, y: ${y}  (copied)`;
+      })
+      .catch(() => {});
+  }
+
+  // Lightbox
+  let lbCluster: HTMLElement | null = null;
+  let lbIndex = 0;
+
+  function showPhoto() {
+    if (!lbCluster) return;
+    const list = Array.from(lbCluster.querySelectorAll<HTMLElement>('.photo'));
+    lbIndex = (lbIndex + list.length) % list.length;
+    const btn = list[lbIndex];
+    const img = btn.querySelector('img') as HTMLImageElement;
+    lbImg.src = img.dataset.src ?? '';
+    lbImg.alt = img.alt;
+    lbCaption.textContent = btn.dataset.caption ?? '';
+    lbCaption.hidden = !btn.dataset.caption;
+  }
+
+  function openLightbox(cluster: HTMLElement, index: number) {
+    lbCluster = cluster;
+    lbIndex = index;
+    showPhoto();
+    lightbox.showModal();
+  }
+
+  lightbox.querySelector('.lb-prev')?.addEventListener('click', () => {
+    lbIndex--;
+    showPhoto();
+  });
+  lightbox.querySelector('.lb-next')?.addEventListener('click', () => {
+    lbIndex++;
+    showPhoto();
+  });
+  lightbox.querySelector('.lb-close')?.addEventListener('click', () => lightbox.close());
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) lightbox.close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (lightbox.open) {
+      if (e.key === 'ArrowLeft') {
+        lbIndex--;
+        showPhoto();
+      }
+      if (e.key === 'ArrowRight') {
+        lbIndex++;
+        showPhoto();
+      }
+      return;
+    }
+    if (e.key === 'Escape') {
+      closeSheet();
+      if (current) showOverview();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    setupStage();
+    if (current) zoomTo(current, true);
+    else showOverview(true);
+  });
+
+  if (pickMode) {
+    viewport.classList.add('pick');
+    readout.hidden = false;
+  }
+
+  setupStage();
+  showOverview(true);
+</script>
