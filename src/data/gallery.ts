@@ -23,8 +23,8 @@ export const albums: Album[] = [
   {
     slug: 'redwoods',
     title: 'Redwood National & State Parks',
-    x: 0.3, // placeholder, you'll pick real spots with ?pick in step 3
-    y: 0.4,
+    x: 0.558, // placeholder, you'll pick real spots with ?pick in step 3
+    y: 0.328,
     photos: [
       { src: 'gallery/redwoods/fern_canyon.jpg', alt: 'Fern Canyon' },
       { src: 'gallery/redwoods/fern_closeup.jpg', alt: 'Fern close-up' },
