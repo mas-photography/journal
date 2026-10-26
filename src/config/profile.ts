@@ -57,7 +57,7 @@ export const profileConfig: ProfileConfig = {
   avatar: avatarImg,
   name: 'Stephanie Ma | 马李天一',
   title: 'Engineer / Writer / Photographer',
-  bio: 'Got bored of Instagram, so I built this with Astro & JavaScript to use instead. Camera: Sony Alpha 7 IV, lenses: Sigma 24-70 mm f/2.8 Art & Sony FE 400-800 mm f/6.3-8 G OSS',
+  bio: 'Got bored of Instagram, so I built this with Astro & JavaScript to use instead. Camera: Sony Alpha 7 IV, lenses: Sigma 24-70 mm f/2.8 Art (landscape) & Sony FE 400-800 mm f/6.3-8 G OSS (wildlife)',
   location: 'Houston, TX',
   email: 'stephanie.ma.2022@gmail.com',
   githubProfileUrl: 'https://example.com',
