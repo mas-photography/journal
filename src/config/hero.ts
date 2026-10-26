@@ -23,12 +23,7 @@ export interface HeroSectionConfig {
  */
 export interface HeroConfig {
   home: HeroSectionConfig;
-  blog: HeroSectionConfig;
   about: HeroSectionConfig;
-  /**
-   * Hero settings for tag archive pages.
-   */
-  tags: HeroSectionConfig;
   /**
    * Default hero image shared by all article pages.
    */
@@ -41,19 +36,9 @@ export const heroConfig: HeroConfig = {
     subtitle: 'telling the stories behind my favorite shots',
     backgroundImage: logansPass.src,
   },
-  blog: {
-    text: 'all journal entries',
-    subtitle: 'browse my stories',
-    backgroundImage: logansPass.src,
-  },
   about: {
     text: 'about',
     subtitle: 'the mind behind the lens',
-    backgroundImage: logansPass.src,
-  },
-  tags: {
-    text: 'tags',
-    subtitle: 'browse posts by tag',
     backgroundImage: logansPass.src,
   },
   postDefaultBackground: logansPass.src,
