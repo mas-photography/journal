@@ -8,7 +8,6 @@ function buildRobotsTxt() {
   return [
     'User-agent: *',
     'Allow: /',
-    'Disallow: /search-index.json',
     '',
     `Sitemap: ${sitemapUrl}`,
     '',
