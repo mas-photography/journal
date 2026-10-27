@@ -8,6 +8,8 @@ interface Props {
 
 const { transparent = true } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+const musicTrackUrl = 'https://soundcloud.com/ldre/paramore-decode-but-its-lofi-hip-hop';
+const musicPlayerSrc = `https://w.soundcloud.com/player/?url=${encodeURIComponent(musicTrackUrl)}&auto_play=false&show_artwork=false&visual=false`;
 const currentPathname = Astro.url.pathname.replace(/\/$/, '') || baseUrl;
 
 // Normalize active checks for base path routing
@@ -27,6 +29,17 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
             <div class="nav-indicator" id="nav-indicator"></div>
         </div>
         <div class="header-actions">
+            <button id="music-toggle" class="music-toggle-btn" aria-label="Play music" aria-pressed="false" hidden={!isBlogActive}>
+                <svg class="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <svg class="sound-off-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+            </button>
             <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
                 <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
@@ -75,6 +88,16 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
             <a href={`${baseUrl}/about/`} class:list={['mobile-nav-link', { active: isAboutActive }]}>About</a>
         </nav>
     </aside>
+    <iframe
+        id="music-player"
+        class="music-player-frame"
+        src={musicPlayerSrc}
+        data-default-track={musicTrackUrl}
+        allow="autoplay"
+        title="Background music"
+        aria-hidden="true"
+        tabindex="-1"
+    ></iframe>
 </header>
 <style>
     /* Entrance Animations Removed per request */
@@ -456,6 +479,7 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
     header.transparent > nav .header-actions > a,
     header.transparent > nav h2 a,
     header.transparent > nav .theme-toggle-btn,
+    header.transparent > nav .music-toggle-btn,
     header.transparent > nav .mobile-menu-btn {
         color: white;
         transition: color 0.3s, opacity 0.3s, transform 0.3s, filter 0.3s;
@@ -490,6 +514,7 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
     header.transparent.scrolled > nav .header-actions > a,
     header.transparent.scrolled > nav h2 a,
     header.transparent.scrolled > nav .theme-toggle-btn,
+    header.transparent.scrolled > nav .music-toggle-btn,
     header.transparent.scrolled > nav .mobile-menu-btn {
         color: var(--black);
     }
@@ -501,6 +526,50 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
     header.transparent.scrolled #navigation-progress {
         background: var(--accent);
     }
+    .music-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: rgba(128, 128, 128, 0.1);
+        border-radius: 12px;
+        cursor: pointer;
+        color: inherit;
+        transition: background-color 0.4s cubic-bezier(0.2, 0, 0, 1), transform 0.4s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .music-toggle-btn:hover {
+        background: rgba(128, 128, 128, 0.2);
+        transform: scale(1.1);
+    }
+
+    .music-toggle-btn:active {
+        transform: scale(0.95);
+    }
+
+    .music-toggle-btn .sound-on-icon,
+    .music-toggle-btn[hidden] {
+    display: none;
+    }
+    .music-toggle-btn.is-playing .sound-off-icon {
+        display: none;
+    }
+
+    .music-toggle-btn.is-playing .sound-on-icon {
+        display: block;
+    }
+
+    .music-player-frame {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        border: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
 </style>
 
 <script>
@@ -508,4 +577,128 @@ import '../scripts/header.client';
 import { setupNavigationFeedback } from '../scripts/navigation-feedback';
 
 setupNavigationFeedback();
+</script>
+<script>
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+    const galleryPath = `${base}/gallery`;
+    const MUTED_KEY = 'music-muted';
+
+    const iframe = document.getElementById('music-player') as HTMLIFrameElement | null;
+    const button = document.getElementById('music-toggle') as HTMLButtonElement | null;
+
+    let widget: any = null;
+    let isPlaying = false;
+    let wantsPlay = false;
+    let widgetReady = false;
+    const defaultTrack = iframe?.dataset.defaultTrack ?? '';
+    let loadedTrack = defaultTrack;
+    let desiredTrack = defaultTrack;
+
+    // Switch songs only when the album's song differs from the one loaded
+    function syncTrack() {
+        if (!widget || !widgetReady || desiredTrack === loadedTrack) return;
+        loadedTrack = desiredTrack;
+        widget.load(desiredTrack, {
+            auto_play: wantsPlay,
+            show_artwork: false,
+            visual: false,
+        });
+    }
+
+    const isMuted = () => localStorage.getItem(MUTED_KEY) === '1';
+    const onGallery = () => location.pathname.replace(/\/$/, '') === galleryPath;
+
+    function updateButton() {
+        if (!button) return;
+        button.classList.toggle('is-playing', isPlaying);
+        button.setAttribute('aria-pressed', String(isPlaying));
+        button.setAttribute('aria-label', isPlaying ? 'Pause music' : 'Play music');
+    }
+
+    function play() {
+        wantsPlay = true;
+        widget?.play();
+    }
+
+    function pause() {
+        wantsPlay = false;
+        widget?.pause();
+    }
+
+    function loadSoundCloudApi(): Promise<void> {
+        if ((window as any).SC) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://w.soundcloud.com/player/api.js';
+            script.onload = () => resolve();
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    if (iframe && button) {
+        loadSoundCloudApi().then(() => {
+            const SC = (window as any).SC;
+            widget = SC.Widget(iframe);
+            widget.bind(SC.Widget.Events.READY, () => {
+                widgetReady = true;
+                syncTrack();
+                if (wantsPlay) widget.play();
+            });
+            widget.bind(SC.Widget.Events.PLAY, () => {
+                isPlaying = true;
+                updateButton();
+            });
+            widget.bind(SC.Widget.Events.PAUSE, () => {
+                isPlaying = false;
+                updateButton();
+            });
+            widget.bind(SC.Widget.Events.FINISH, () => {
+                widget.seekTo(0);
+                widget.play();
+            });
+        });
+
+        // Mute button: pausing remembers the choice; playing clears it.
+        button.addEventListener('click', () => {
+            if (isPlaying) {
+                localStorage.setItem(MUTED_KEY, '1');
+                pause();
+            } else {
+                localStorage.removeItem(MUTED_KEY);
+                play();
+            }
+        });
+
+        // Start on any gallery link click, or on the first click anywhere in the gallery.
+        document.addEventListener('click', (event) => {
+            if (isPlaying || isMuted()) return;
+            const target = event.target as Element;
+            if (target.closest('#music-toggle')) return;
+            const link = target.closest('a');
+            if (link) {
+                const isGalleryLink = new URL(link.href, location.href).pathname.replace(/\/$/, '') === galleryPath;
+                if (isGalleryLink) play();
+                return;
+            }
+            if (onGallery()) play();
+        }, true);
+
+        // Gallery-only music: pause and hide the button on every other page.
+        document.addEventListener('astro:page-load', () => {
+            const inGallery = onGallery();
+            button.hidden = !inGallery;
+            if (!inGallery) {
+                pause();
+                desiredTrack = defaultTrack;
+                syncTrack();
+            }
+        });
+
+        // The gallery announces each album's song; switch to it.
+        window.addEventListener('gallery:track', (event) => {
+            desiredTrack = (event as CustomEvent<string>).detail || defaultTrack;
+            syncTrack();
+        });
+    }
 </script>

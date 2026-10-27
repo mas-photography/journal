@@ -16,6 +16,7 @@ export interface Album {
   title: string;    // name shown to visitors
   x: number;        // position on the sky, 0 (left) to 1 (right)
   y: number;        // position on the sky, 0 (top) to 1 (bottom)
+  track: string;    // SoundCloud track URL
   photos: Photo[];
 }
 
@@ -25,6 +26,7 @@ export const albums: Album[] = [
     title: 'Redwood National & State Parks',
     x: 0.558,
     y: 0.328,
+    track: 'https://soundcloud.com/bohanphoenix/buy-some-time',
     photos: [
       { src: 'gallery/redwoods/fern_canyon.jpg', alt: 'Fern Canyon', caption: 'Fern Canyon' },
       { src: 'gallery/redwoods/fern_closeup.jpg', alt: 'Fern close-up', caption: 'Fern close-up' },

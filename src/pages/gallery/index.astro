@@ -46,6 +46,7 @@ const layout = albums.map((album) => {
             class="cluster"
             data-slug={album.slug}
             data-radius={album.radius}
+            data-track={album.track ?? ''}
             style={`left:${album.x * 100}%;top:${album.y * 100}%;`}
           >
             {album.photos.map((photo, i) => (
@@ -462,6 +463,8 @@ const layout = albums.map((album) => {
       menu.querySelectorAll<HTMLElement>('.menu-item').forEach((item) => {
         item.classList.toggle('active', item.dataset.target === slug);
       });
+      // Tell the music player which song this album uses ('' means the default song)
+      window.dispatchEvent(new CustomEvent('gallery:track', { detail: current?.dataset.track ?? '' }));
     }
 
     function showOverview(instant = false) {
