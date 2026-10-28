@@ -69,6 +69,19 @@ const {
         {prevURL && <link rel="prev" href={prevURL} />}
         {nextURL && <link rel="next" href={nextURL} />}
         <slot name="head" />
+        <!-- TEMPORARY: on-screen debug console. Open any page with ?debug to enable. Remove when done. -->
+        <script is:inline>
+            if (location.search.indexOf('debug') !== -1) {
+                sessionStorage.setItem('debug', '1');
+            }
+            if (sessionStorage.getItem('debug') && !document.getElementById('eruda-script')) {
+                var erudaScript = document.createElement('script');
+                erudaScript.id = 'eruda-script';
+                erudaScript.src = 'https://cdn.jsdelivr.net/npm/eruda';
+                erudaScript.setAttribute('onload', 'eruda.init()');
+                document.head.appendChild(erudaScript);
+            }
+        </script>
     </head>
     <body data-page-id={pageId}>
         <Header transparent={transparentHeader} />
