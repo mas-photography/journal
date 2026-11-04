@@ -1,3 +1,4 @@
+
 // The background sky photo. Use its real pixel size from Properties > Details.
 export const sky = {
   src: 'milky_way.jpg',

@@ -1,6 +1,7 @@
 ---
 import { headerGithubRepoUrl, siteTitle } from '../config';
 import HeaderLink from './HeaderLink.astro';
+import { albums } from '../data/gallery';
 
 interface Props {
     transparent?: boolean;
@@ -9,7 +10,10 @@ interface Props {
 const { transparent = true } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
 const musicTrackUrl = 'https://soundcloud.com/ldre/paramore-decode-but-its-lofi-hip-hop';
-const musicPlayerSrc = `https://w.soundcloud.com/player/?url=${encodeURIComponent(musicTrackUrl)}&auto_play=false&show_artwork=false&visual=false`;
+// One hidden player per song: the home song first, then each album's song (no duplicates)
+const musicTracks = [...new Set([musicTrackUrl, ...albums.map((album) => album.track)])];
+const playerSrc = (track: string) =>
+    `https://w.soundcloud.com/player/?url=${encodeURIComponent(track)}&auto_play=false&show_artwork=false&visual=false`;
 const currentPathname = Astro.url.pathname.replace(/\/$/, '') || baseUrl;
 
 // Normalize active checks for base path routing
@@ -88,16 +92,17 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
             <a href={`${baseUrl}/about/`} class:list={['mobile-nav-link', { active: isAboutActive }]}>About</a>
         </nav>
     </aside>
-    <iframe
-        id="music-player"
-        class="music-player-frame"
-        src={musicPlayerSrc}
-        data-default-track={musicTrackUrl}
-        allow="autoplay"
-        title="Background music"
-        aria-hidden="true"
-        tabindex="-1"
-    ></iframe>
+    {musicTracks.map((track) => (
+        <iframe
+            class="music-player-frame"
+            src={playerSrc(track)}
+            data-track={track}
+            allow="autoplay"
+            title="Background music"
+            aria-hidden="true"
+            tabindex="-1"
+        ></iframe>
+    ))}
 </header>
 <style>
     /* Entrance Animations Removed per request */
@@ -583,30 +588,29 @@ setupNavigationFeedback();
     const galleryPath = `${base}/gallery`;
     const MUTED_KEY = 'music-muted';
 
-    const iframe = document.getElementById('music-player') as HTMLIFrameElement | null;
     const button = document.getElementById('music-toggle') as HTMLButtonElement | null;
+    const frames = Array.from(document.querySelectorAll<HTMLIFrameElement>('iframe.music-player-frame'));
+    const knownTracks = new Set(frames.map((frame) => frame.dataset.track ?? ''));
+    const defaultTrack = frames[0]?.dataset.track ?? '';
 
-    let widget: any = null;
+    type Player = { widget: any; ready: boolean };
+    const players = new Map<string, Player>();
+    let currentTrack = defaultTrack;
     let isPlaying = false;
     let wantsPlay = false;
-    let widgetReady = false;
-    const defaultTrack = iframe?.dataset.defaultTrack ?? '';
-    let loadedTrack = defaultTrack;
-    let desiredTrack = defaultTrack;
 
-    // Switch songs only when the album's song differs from the one loaded
-    function syncTrack() {
-        if (!widget || !widgetReady || desiredTrack === loadedTrack) return;
-        loadedTrack = desiredTrack;
-        widget.load(desiredTrack, {
-            auto_play: wantsPlay,
-            show_artwork: false,
-            visual: false,
-        });
-    }
-
-    const isMuted = () => localStorage.getItem(MUTED_KEY) === '1';
-    const onGallery = () => location.pathname.replace(/\/$/, '') === galleryPath;
+    const isMuted = () => {
+        try { return localStorage.getItem(MUTED_KEY) === '1'; } catch { return false; }
+    };
+    const setMuted = (muted: boolean) => {
+        try { muted ? localStorage.setItem(MUTED_KEY, '1') : localStorage.removeItem(MUTED_KEY); } catch {}
+    };
+    // True on the gallery and on any album page under it
+    const onGallery = () => {
+        const path = location.pathname.replace(/\/$/, '');
+        return path === galleryPath || path.startsWith(galleryPath + '/');
+    };
+    const current = () => players.get(currentTrack);
 
     function updateButton() {
         if (!button) return;
@@ -617,12 +621,31 @@ setupNavigationFeedback();
 
     function play() {
         wantsPlay = true;
-        widget?.play();
+        const player = current();
+        if (player?.ready) player.widget.play();
     }
 
     function pause() {
         wantsPlay = false;
-        widget?.pause();
+        current()?.widget.pause();
+    }
+
+    // Switch to another preloaded player instead of reloading one
+    function setTrack(track: string) {
+        if (!knownTracks.has(track)) track = defaultTrack;
+        if (track === currentTrack) return;
+        const previous = current();
+        currentTrack = track;
+        previous?.widget.pause();
+        isPlaying = false;
+        updateButton();
+        if (wantsPlay) {
+            const next = current();
+            if (next?.ready) {
+                next.widget.seekTo(0);
+                next.widget.play();
+            }
+        }
     }
 
     function loadSoundCloudApi(): Promise<void> {
@@ -636,69 +659,76 @@ setupNavigationFeedback();
         });
     }
 
-    if (iframe && button) {
+    if (button && frames.length) {
         loadSoundCloudApi().then(() => {
             const SC = (window as any).SC;
-            widget = SC.Widget(iframe);
-            widget.bind(SC.Widget.Events.READY, () => {
-                widgetReady = true;
-                syncTrack();
-                if (wantsPlay) widget.play();
-            });
-            widget.bind(SC.Widget.Events.PLAY, () => {
-                isPlaying = true;
-                updateButton();
-            });
-            widget.bind(SC.Widget.Events.PAUSE, () => {
-                isPlaying = false;
-                updateButton();
-            });
-            widget.bind(SC.Widget.Events.FINISH, () => {
-                widget.seekTo(0);
-                widget.play();
-            });
+            for (const frame of frames) {
+                const track = frame.dataset.track ?? '';
+                const widget = SC.Widget(frame);
+                const player: Player = { widget, ready: false };
+                players.set(track, player);
+
+                widget.bind(SC.Widget.Events.READY, () => {
+                    player.ready = true;
+                    if (track === currentTrack && wantsPlay) widget.play();
+                });
+                widget.bind(SC.Widget.Events.PLAY, () => {
+                    // Only the current song may play
+                    if (track !== currentTrack) { widget.pause(); return; }
+                    isPlaying = true;
+                    updateButton();
+                });
+                widget.bind(SC.Widget.Events.PAUSE, () => {
+                    if (track !== currentTrack) return;
+                    isPlaying = false;
+                    updateButton();
+                });
+                widget.bind(SC.Widget.Events.FINISH, () => {
+                    if (track !== currentTrack) return;
+                    widget.seekTo(0);
+                    widget.play();
+                });
+            }
         });
 
-        // Mute button: pausing remembers the choice; playing clears it.
+        // Speaker button: pausing remembers the choice, playing clears it
         button.addEventListener('click', () => {
             if (isPlaying) {
-                localStorage.setItem(MUTED_KEY, '1');
+                setMuted(true);
                 pause();
             } else {
-                localStorage.removeItem(MUTED_KEY);
+                setMuted(false);
                 play();
             }
         });
 
-        // Start on any gallery link click, or on the first click anywhere in the gallery.
+        // Start on a tap of a gallery link, or on the first tap anywhere in the gallery
         document.addEventListener('click', (event) => {
             if (isPlaying || isMuted()) return;
             const target = event.target as Element;
             if (target.closest('#music-toggle')) return;
             const link = target.closest('a');
             if (link) {
-                const isGalleryLink = new URL(link.href, location.href).pathname.replace(/\/$/, '') === galleryPath;
-                if (isGalleryLink) play();
+                const linkPath = new URL(link.href, location.href).pathname.replace(/\/$/, '');
+                if (linkPath === galleryPath || linkPath.startsWith(galleryPath + '/')) play();
                 return;
             }
             if (onGallery()) play();
         }, true);
 
-        // Gallery-only music: pause and hide the button on every other page.
+        // Gallery-only music: pause and hide the button everywhere else
         document.addEventListener('astro:page-load', () => {
             const inGallery = onGallery();
             button.hidden = !inGallery;
             if (!inGallery) {
                 pause();
-                desiredTrack = defaultTrack;
-                syncTrack();
+                setTrack(defaultTrack);
             }
         });
 
-        // The gallery announces each album's song; switch to it.
+        // The gallery announces each album's song; switch to it
         window.addEventListener('gallery:track', (event) => {
-            desiredTrack = (event as CustomEvent<string>).detail || defaultTrack;
-            syncTrack();
+            setTrack((event as CustomEvent<string>).detail || defaultTrack);
         });
     }
 </script>
