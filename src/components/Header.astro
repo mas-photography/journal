@@ -690,7 +690,13 @@ setupNavigationFeedback();
         window.clearTimeout(tapTimer);
         setNeedsTap(false);
         tapTimer = window.setTimeout(() => {
-            if (wantsPlay && !isPlaying) setNeedsTap(true);
+            if (!wantsPlay) return;
+            const player = current();
+            if (!player?.ready) { setNeedsTap(true); return; }
+            // Check whether the song is actually moving, not just whether SoundCloud said "playing"
+            player.widget.getPosition((position: number) => {
+                if (wantsPlay && position < 1000) setNeedsTap(true);
+            });
         }, TAP_FALLBACK_MS);
     }
     function stopWatching() {
@@ -784,8 +790,11 @@ setupNavigationFeedback();
                     if (track !== currentTrack) { widget.pause(); return; }
                     isPlaying = true;
                     wantsPlay = true;
-                    stopWatching();
                     updateButton();
+                });
+                // Hide the play bar only once the song is really moving
+                widget.bind(SC.Widget.Events.PLAY_PROGRESS, (event: any) => {
+                    if (track === currentTrack && event?.currentPosition > 1000) stopWatching();
                 });
                 widget.bind(SC.Widget.Events.PAUSE, () => {
                     if (track !== currentTrack) return;
