@@ -1,4 +1,3 @@
-
 // The background sky photo. Use its real pixel size from Properties > Details.
 export const sky = {
   src: 'milky_way.jpg',
@@ -48,5 +47,34 @@ export const albums: Album[] = [
       { src: 'gallery/redwoods/redwood_dumplings.jpg', alt: 'Campsite dumplings', caption: 'Campsite dumplings' },
     ],
   },
-  // Copy the block above for each album.
+  {
+    slug: 'nostalgia',
+    title: 'nostalgia shot on phones',
+    x: 0.558,
+    y: 0.558,
+    track: 'https://soundcloud.com/paramore/misguided-ghosts',
+    photos: [
+      { src: 'gallery/nostalgia/cloud_blue_eyes.jpg', alt: 'Cloud with blue eyes', caption: 'Cloud with blue eyes' },
+      { src: 'gallery/nostalgia/angela.jpg', alt: '姐姐', caption: '姐姐' },
+      { src: 'gallery/nostalgia/baby_cloud.jpg', alt: 'Baby Cloud', caption: 'Baby Cloud' },
+      { src: 'gallery/nostalgia/Brandon.jpg', alt: '哥哥', caption: '哥哥' },
+      { src: 'gallery/nostalgia/daniel.jpg', alt: 'Canoe adventures with 表侄', caption: 'Canoe adventures with 表侄' },
+      { src: 'gallery/nostalgia/golden_cloud.jpg', alt: 'Golden Cloud', caption: 'Golden Cloud' },
+      { src: 'gallery/nostalgia/good_old_days.jpg', alt: 'Cloud in her dandelion years', caption: 'Cloud in her dandelion years' },
+      { src: 'gallery/nostalgia/hadestown.jpg', alt: 'Hadestown original cast in NYC!', caption: 'Hadestown original cast in NYC!' },
+      { src: 'gallery/nostalgia/konza_again.jpg', alt: 'Konza Prairie trail during summer', caption: 'Konza Prairie trail during summer' },
+      { src: 'gallery/nostalgia/konza_golden_hour.jpg', alt: 'Konza Prairie golden hour during summer', caption: 'Konza Prairie golden hour during summer' },
+      { src: 'gallery/nostalgia/konza.jpg', alt: 'A summer morning in Konza Prairie', caption: 'A summer morning in Konza Prairie' },
+      { src: 'gallery/nostalgia/KS_winter_sunset.jpg', alt: 'A KS winter sunset', caption: 'A KS winter sunset' },
+      { src: 'gallery/nostalgia/KSsunset.jpg', alt: 'A KS summer sunset', caption: 'A KS summer sunset' },
+      { src: 'gallery/nostalgia/landon_at_konza.jpg', alt: 'Landon at Konza Prairie', caption: 'Landon at Konza Prairie' },
+      { src: 'gallery/nostalgia/live_oak_and_dad.jpg', alt: '爸爸 + live oak', caption: '爸爸 + live oak' },
+      { src: 'gallery/nostalgia/mom_in_NYC.jpg', alt: '妈妈 in NYC', caption: '妈妈 in NYC' },
+      { src: 'gallery/nostalgia/NYC_safe_asians.jpg', alt: 'In the future, our Asian community is safe -- NYC', caption: 'In the future, our Asian community is safe -- NYC' },
+      { src: 'gallery/nostalgia/sideways_cap.jpg', alt: 'Sideways cap -- NYC', caption: 'Sideways cap -- NYC' },
+      { src: 'gallery/nostalgia/thanksgiving2022.jpg', alt: 'Thanksgiving morning 2021', caption: 'Thanksgiving morning 2021' },
+      { src: 'gallery/nostalgia/uncles_restaurant.jpg', alt: '舅舅的饭馆', caption: '舅舅的饭馆' },
+    ],
+  },
+  // Copy an album block above (from { to },) for each new album.
 ];
