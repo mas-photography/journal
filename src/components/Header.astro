@@ -103,6 +103,10 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
             tabindex="-1"
         ></iframe>
     ))}
+    <div id="ig-hint" class="ig-hint" hidden>
+        <span>For the full experience with music, tap ⋮ or ⋯ and choose "Open in browser".</span>
+        <button id="ig-hint-close" class="ig-hint-close" aria-label="Dismiss">×</button>
+    </div>
 </header>
 <style>
     /* Entrance Animations Removed per request */
@@ -575,6 +579,49 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
         opacity: 0;
         pointer-events: none;
     }
+
+    /* Instagram only: show the current song's SoundCloud player as a slim bar */
+    header[data-instagram][data-gallery] .music-player-frame.is-current {
+        left: 12px;
+        top: calc(100% + 6px);
+        width: calc(100% - 24px);
+        height: 20px;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Instagram only: "open in browser" tip */
+    .ig-hint {
+        position: absolute;
+        top: calc(100% + 34px);
+        left: 12px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        padding: 0.5em 0.75em;
+        font-size: 0.8rem;
+        line-height: 1.35;
+        color: white;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(6px);
+        border-radius: 10px;
+    }
+
+    .ig-hint[hidden] {
+        display: none;
+    }
+
+    .ig-hint-close {
+        margin-left: auto;
+        padding: 0 0.25em;
+        border: none;
+        background: none;
+        color: inherit;
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+    }
 </style>
 
 <script>
@@ -587,11 +634,19 @@ setupNavigationFeedback();
     const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     const galleryPath = `${base}/gallery`;
     const MUTED_KEY = 'music-muted';
+    const HINT_KEY = 'ig-hint-dismissed';
 
+    const header = document.querySelector('header');
     const button = document.getElementById('music-toggle') as HTMLButtonElement | null;
+    const hint = document.getElementById('ig-hint');
+    const hintClose = document.getElementById('ig-hint-close');
     const frames = Array.from(document.querySelectorAll<HTMLIFrameElement>('iframe.music-player-frame'));
     const knownTracks = new Set(frames.map((frame) => frame.dataset.track ?? ''));
     const defaultTrack = frames[0]?.dataset.track ?? '';
+
+    // Instagram's in-app browser (add ?ig to the URL to preview this in Chrome)
+    const inInstagram = /Instagram/i.test(navigator.userAgent) || new URLSearchParams(location.search).has('ig');
+    if (inInstagram && header) header.dataset.instagram = '';
 
     type Player = { widget: any; ready: boolean };
     const players = new Map<string, Player>();
@@ -605,12 +660,27 @@ setupNavigationFeedback();
     const setMuted = (muted: boolean) => {
         try { muted ? localStorage.setItem(MUTED_KEY, '1') : localStorage.removeItem(MUTED_KEY); } catch {}
     };
+    const hintDismissed = () => {
+        try { return sessionStorage.getItem(HINT_KEY) === '1'; } catch { return false; }
+    };
     // True on the gallery and on any album page under it
     const onGallery = () => {
         const path = location.pathname.replace(/\/$/, '');
         return path === galleryPath || path.startsWith(galleryPath + '/');
     };
     const current = () => players.get(currentTrack);
+
+    // Mark the current song's player (Instagram shows that one as the slim bar)
+    function markCurrent() {
+        for (const frame of frames) {
+            frame.classList.toggle('is-current', frame.dataset.track === currentTrack);
+        }
+    }
+
+    function updateHint(inGallery: boolean) {
+        if (!hint) return;
+        hint.hidden = !(inInstagram && inGallery && !hintDismissed());
+    }
 
     function updateButton() {
         if (!button) return;
@@ -636,6 +706,7 @@ setupNavigationFeedback();
         if (track === currentTrack) return;
         const previous = current();
         currentTrack = track;
+        markCurrent();
         previous?.widget.pause();
         isPlaying = false;
         updateButton();
@@ -659,6 +730,13 @@ setupNavigationFeedback();
         });
     }
 
+    markCurrent();
+
+    hintClose?.addEventListener('click', () => {
+        try { sessionStorage.setItem(HINT_KEY, '1'); } catch {}
+        if (hint) hint.hidden = true;
+    });
+
     if (button && frames.length) {
         loadSoundCloudApi().then(() => {
             const SC = (window as any).SC;
@@ -676,6 +754,7 @@ setupNavigationFeedback();
                     // Only the current song may play
                     if (track !== currentTrack) { widget.pause(); return; }
                     isPlaying = true;
+                    wantsPlay = true;
                     updateButton();
                 });
                 widget.bind(SC.Widget.Events.PAUSE, () => {
@@ -704,9 +783,17 @@ setupNavigationFeedback();
 
         // Start on a tap of a gallery link, or on the first tap anywhere in the gallery
         document.addEventListener('click', (event) => {
-            if (isPlaying || isMuted()) return;
             const target = event.target as Element;
-            if (target.closest('#music-toggle')) return;
+
+            // "Enter gallery with sound on" always turns sound on, even if muted before
+            if (target.closest('[data-music-on]')) {
+                setMuted(false);
+                if (!isPlaying) play();
+                return;
+            }
+
+            if (isPlaying || isMuted()) return;
+            if (target.closest('#music-toggle, #ig-hint')) return;
             const link = target.closest('a');
             if (link) {
                 const linkPath = new URL(link.href, location.href).pathname.replace(/\/$/, '');
@@ -716,10 +803,12 @@ setupNavigationFeedback();
             if (onGallery()) play();
         }, true);
 
-        // Gallery-only music: pause and hide the button everywhere else
+        // Gallery-only music: pause and hide the button, bar and tip everywhere else
         document.addEventListener('astro:page-load', () => {
             const inGallery = onGallery();
             button.hidden = !inGallery;
+            header?.toggleAttribute('data-gallery', inGallery);
+            updateHint(inGallery);
             if (!inGallery) {
                 pause();
                 setTrack(defaultTrack);
