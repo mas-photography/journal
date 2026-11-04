@@ -580,8 +580,10 @@ const isAboutActive = currentPathname === `${baseUrl}/about` || currentPathname.
         pointer-events: none;
     }
 
-    /* Instagram only: show the current song's SoundCloud player as a slim bar */
-    header[data-instagram][data-gallery] .music-player-frame.is-current {
+    /* Show the current song's SoundCloud player as a slim bar:
+       always in Instagram, and anywhere a song needs a tap to start */
+    header[data-instagram][data-gallery] .music-player-frame.is-current,
+    header[data-needs-tap][data-gallery] .music-player-frame.is-current {
         left: 12px;
         top: calc(100% + 6px);
         width: calc(100% - 24px);
@@ -635,6 +637,7 @@ setupNavigationFeedback();
     const galleryPath = `${base}/gallery`;
     const MUTED_KEY = 'music-muted';
     const HINT_KEY = 'ig-hint-dismissed';
+    const TAP_FALLBACK_MS = 3000;
 
     const header = document.querySelector('header');
     const button = document.getElementById('music-toggle') as HTMLButtonElement | null;
@@ -653,6 +656,7 @@ setupNavigationFeedback();
     let currentTrack = defaultTrack;
     let isPlaying = false;
     let wantsPlay = false;
+    let tapTimer: number | undefined;
 
     const isMuted = () => {
         try { return localStorage.getItem(MUTED_KEY) === '1'; } catch { return false; }
@@ -670,11 +674,28 @@ setupNavigationFeedback();
     };
     const current = () => players.get(currentTrack);
 
-    // Mark the current song's player (Instagram shows that one as the slim bar)
+    // Mark the current song's player (the one shown as the slim bar when needed)
     function markCurrent() {
         for (const frame of frames) {
             frame.classList.toggle('is-current', frame.dataset.track === currentTrack);
         }
+    }
+
+    // Some tracks (often label uploads) only start from a tap inside SoundCloud's player.
+    // If a song hasn't started shortly after we asked, show its play bar.
+    function setNeedsTap(on: boolean) {
+        header?.toggleAttribute('data-needs-tap', on);
+    }
+    function watchForBlockedPlay() {
+        window.clearTimeout(tapTimer);
+        setNeedsTap(false);
+        tapTimer = window.setTimeout(() => {
+            if (wantsPlay && !isPlaying) setNeedsTap(true);
+        }, TAP_FALLBACK_MS);
+    }
+    function stopWatching() {
+        window.clearTimeout(tapTimer);
+        setNeedsTap(false);
     }
 
     function updateHint(inGallery: boolean) {
@@ -691,12 +712,13 @@ setupNavigationFeedback();
 
     function play() {
         wantsPlay = true;
-        const player = current();
-        if (player?.ready) player.widget.play();
+        current()?.widget.play();
+        watchForBlockedPlay();
     }
 
     function pause() {
         wantsPlay = false;
+        stopWatching();
         current()?.widget.pause();
     }
 
@@ -712,10 +734,11 @@ setupNavigationFeedback();
         updateButton();
         if (wantsPlay) {
             const next = current();
-            if (next?.ready) {
-                next.widget.seekTo(0);
-                next.widget.play();
-            }
+            next?.widget.seekTo(0);
+            next?.widget.play();
+            watchForBlockedPlay();
+        } else {
+            stopWatching();
         }
     }
 
@@ -746,15 +769,22 @@ setupNavigationFeedback();
                 const player: Player = { widget, ready: false };
                 players.set(track, player);
 
-                widget.bind(SC.Widget.Events.READY, () => {
+                const markReady = () => {
+                    if (player.ready) return;
                     player.ready = true;
                     if (track === currentTrack && wantsPlay) widget.play();
-                });
+                };
+                widget.bind(SC.Widget.Events.READY, markReady);
+                // If this player finished loading before we connected, READY never arrives.
+                // Asking it for its song gets an answer only once it's ready, so either way we find out.
+                widget.getCurrentSound(() => markReady());
+
                 widget.bind(SC.Widget.Events.PLAY, () => {
                     // Only the current song may play
                     if (track !== currentTrack) { widget.pause(); return; }
                     isPlaying = true;
                     wantsPlay = true;
+                    stopWatching();
                     updateButton();
                 });
                 widget.bind(SC.Widget.Events.PAUSE, () => {
