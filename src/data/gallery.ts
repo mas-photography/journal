@@ -112,6 +112,41 @@ export const albums: Album[] = [
       { src: 'gallery/redwoods/tent_view.jpg', alt: 'Shoes off in the Asian tent', caption: 'Shoes off in the Asian tent' },
     ],
   },
-  
+  {
+    slug: 'crater_lake',
+    title: 'Crater Lake National Park',
+    x: 0.25,
+    y: 0.25,
+    track: 'https://soundcloud.com/gigi4perez/chemistry',
+    photos: [
+      { src: 'gallery/crater_lake/another_lakeshore.jpg', alt: 'Shore of Wizard Island', caption: 'Shore of Wizard Island' },
+      { src: 'gallery/crater_lake/chipmunk.jpg', alt: 'A chipmunk on top of Wizard Island', caption: 'A chipmunk on top of Wizard Island' },
+      { src: 'gallery/crater_lake/clear_blue_water.jpg', alt: 'Clear blue water so fresh, the park rangers recommended drinking it', caption: 'Clear blue water so fresh, the park rangers recommended drinking it' },
+      { src: 'gallery/crater_lake/cold_plunge.jpg', alt: 'Cold plunge with a view', caption: 'Cold plunge with a view' },
+      { src: 'gallery/crater_lake/crater_lake_rim.jpg', alt: 'View of the Crater Lake rim', caption: 'View of the Crater Lake rim' },
+      { src: 'gallery/crater_lake/green_trees.jpg', alt: 'Who knew trees on a volcano could be so green?', caption: 'Who knew trees on a volcano could be so green?' },
+      { src: 'gallery/crater_lake/lake_from_summit_trailhead.jpg', alt: 'From the summit trailhead', caption: 'From the summit trailhead' },
+      { src: 'gallery/crater_lake/lake_through_the_trees.jpg', alt: 'Lake through the trees', caption: 'Lake through the trees' },
+      { src: 'gallery/crater_lake/lakeshore.jpg', alt: 'Another Wizard Island shore view', caption: 'Another Wizard Island shore view' },
+      { src: 'gallery/crater_lake/many_rocks.jpg', alt: 'So many volcanic rocks!', caption: 'So many volcanic rocks!' },
+      { src: 'gallery/crater_lake/deep_blue_lake.jpg', alt: 'Deep blue lake', caption: 'Deep blue lake' },
+      { src: 'gallery/crater_lake/pointy_mountain.jpg', alt: 'My fav peak on the Crater Lake rim', caption: 'My fav peak on the Crater Lake rim' },
+      { src: 'gallery/crater_lake/red_dirt_blue_lake.jpg', alt: 'Landon + red dirt + blue lake', caption: 'Landon + red dirt + blue lake' },
+      { src: 'gallery/crater_lake/hint_of_red.jpg', alt: 'A hint of red', caption: 'A hint of red' },
+      { src: 'gallery/crater_lake/scrambling.jpg', alt: 'Scrambling up Wizard Island', caption: 'Scrambling up Wizard Island' },
+      { src: 'gallery/crater_lake/smile_with_cam.jpg', alt: 'Camera out on every hike', caption: 'Camera out on every hike' },
+      { src: 'gallery/crater_lake/top_of_wizard_again.jpg', alt: 'The Wizard Island cone', caption: 'The Wizard Island cone' },
+      { src: 'gallery/crater_lake/wizard_island_summit.jpg', alt: 'A volcano with red dirt', caption: 'A volcano with red dirt' },
+      { src: 'gallery/crater_lake/top_of_wizard.jpg', alt: 'Wizard Island summit', caption: 'Wizard Island summit' },
+      { src: 'gallery/crater_lake/top_of_wizard_again.jpg', alt: 'The Wizard Island cone', caption: 'The Wizard Island cone' },
+      { src: 'gallery/crater_lake/wizard_lake_group.jpg', alt: 'Ran 1 mi downhill to catch one of the last Wizard Island boat tours', caption: 'Ran 1 mi downhill to catch one of the last Wizard Island boat tours' },
+      { src: 'gallery/crater_lake/very_blue_lake.jpg', alt: 'Very blue lake', caption: 'Very blue lake' },
+      { src: 'gallery/crater_lake/pointy_mountains.jpg', alt: 'Another Crater Lake rim view', caption: 'Another Crater Lake rim view' },
+      { src: 'gallery/crater_lake/diamond_lake.jpg', alt: 'Diamond Lake sunrise', caption: 'Diamond Lake sunrise' },
+      { src: 'gallery/crater_lake/fav_crater_lake_shot.jpg', alt: 'Fav Crater Lake shot ft. Landon', caption: 'Fav Crater Lake shot ft. Landon' },
+      
+      
+    ],
+  },
   // Copy an album block above (from { to },) for each new album.
 ];
