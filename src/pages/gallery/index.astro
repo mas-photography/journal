@@ -355,6 +355,26 @@ for (const album of layout) {
     .albums-toggle {
       display: inline-block;
     }
+
+    /* Lightbox: arrows move below the photo so it can use the full width */
+    .lightbox figure {
+      max-width: 100vw;
+    }
+    #lb-img {
+      max-height: calc(100dvh - 190px);
+    }
+    .lb-prev,
+    .lb-next {
+      top: auto;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      transform: none;
+    }
+    .lb-prev {
+      left: calc(50% - 80px);
+    }
+    .lb-next {
+      right: calc(50% - 80px);
+    }
   }
 
   .pick-readout {
