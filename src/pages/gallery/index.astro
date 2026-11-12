@@ -20,6 +20,21 @@ const layout = albums.map((album) => {
   const radius = Math.round(SPREAD * Math.sqrt(album.photos.length) + TILE * 0.75);
   return { ...album, photos, radius };
 });
+
+// Group albums for the menu. Albums with the same `group` sit together under one
+// heading, placed where the first of them appears in gallery.ts.
+// Albums without a group are listed on their own as before.
+type MenuGroup = { title: string | null; albums: typeof layout };
+const menuGroups: MenuGroup[] = [];
+for (const album of layout) {
+  const key = album.group ?? null;
+  let g = key ? menuGroups.find((m) => m.title === key) : undefined;
+  if (!g) {
+    g = { title: key, albums: [] };
+    menuGroups.push(g);
+  }
+  g.albums.push(album);
+}
 ---
 
 <PageShell title="Gallery" description="my photos arranged across the night sky" hideFooter>
@@ -71,9 +86,20 @@ const layout = albums.map((album) => {
     <nav class="menu" id="menu" aria-label="Albums">
       <div class="menu-title">Albums</div>
       <button class="menu-item active" type="button" data-target="">Whole sky</button>
-      {layout.map((album) => (
-        <button class="menu-item" type="button" data-target={album.slug}>{album.title}</button>
-      ))}
+      {menuGroups.map((g) =>
+        g.title ? (
+          <details class="menu-group">
+            <summary class="menu-group-title">{g.title}</summary>
+            {g.albums.map((album) => (
+              <button class="menu-item nested" type="button" data-target={album.slug}>{album.title}</button>
+            ))}
+          </details>
+        ) : (
+          g.albums.map((album) => (
+            <button class="menu-item" type="button" data-target={album.slug}>{album.title}</button>
+          ))
+        )
+      )}
     </nav>
 
     <div class="bar">
@@ -247,6 +273,36 @@ const layout = albums.map((album) => {
     background: rgba(255, 255, 255, 0.16);
   }
 
+  /* Collapsible album groups, e.g. Texas */
+  .menu-group-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .menu-group-title::-webkit-details-marker {
+    display: none;
+  }
+  .menu-group-title::before {
+    content: '▸';
+    font-size: 11px;
+    opacity: 0.7;
+    transition: transform 0.2s;
+  }
+  .menu-group[open] > .menu-group-title::before {
+    transform: rotate(90deg);
+  }
+  .menu-group-title:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .menu-item.nested {
+    padding-left: 26px;
+  }
+
   .bar {
     position: absolute;
     left: 50%;
@@ -289,6 +345,10 @@ const layout = albums.map((album) => {
       transform: translateY(0);
     }
     .menu-item {
+      padding: 12px 8px;
+      font-size: 16px;
+    }
+    .menu-group-title {
       padding: 12px 8px;
       font-size: 16px;
     }

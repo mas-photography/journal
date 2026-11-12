@@ -33,7 +33,7 @@ export interface HeroConfig {
 export const heroConfig: HeroConfig = {
   home: {
     text: 'engineer by day, photographer by night',
-    subtitle: 'telling the stories behind my favorite shots',
+    subtitle: 'charting my favorite shots',
     backgroundImage: logansPass.src,
   },
   about: {

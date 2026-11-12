@@ -14,6 +14,7 @@ export interface Photo {
 export interface Album {
   slug: string;     // short id, no spaces, matches the folder name
   title: string;    // name shown to visitors
+  group?: string;    // optional grouping for the album, e.g. "texas"
   x: number;        // position on the sky, 0 (left) to 1 (right)
   y: number;        // position on the sky, 0 (top) to 1 (bottom)
   track: string;    // SoundCloud track URL
@@ -53,6 +54,7 @@ export const albums: Album[] = [
   {
     slug: 'olympic',
     title: 'Olympic National Park',
+    group: 'Wild West',
     x: 0.4,
     y: 0.4,
     track: 'https://soundcloud.com/rubii33395/jealousy',
@@ -86,6 +88,7 @@ export const albums: Album[] = [
   {
     slug: 'redwoods',
     title: 'Redwood National & State Parks',
+    group: 'Wild West',
     x: 0.558,
     y: 0.328,
     track: 'https://soundcloud.com/bohanphoenix/buy-some-time',
@@ -115,6 +118,7 @@ export const albums: Album[] = [
   {
     slug: 'crater_lake',
     title: 'Crater Lake National Park',
+    group: 'Wild West',
     x: 0.25,
     y: 0.25,
     track: 'https://soundcloud.com/gigi4perez/chemistry',
@@ -145,6 +149,73 @@ export const albums: Album[] = [
       { src: 'gallery/crater_lake/fav_crater_lake_shot.jpg', alt: 'Fav Crater Lake shot ft. Landon', caption: 'Fav Crater Lake shot ft. Landon' },
       { src: 'gallery/crater_lake/tree_on_top_of_wizard.jpg', alt: 'A tree in a volcano', caption: 'A tree in a volcano' },
       
+    ],
+  },
+  {
+    slug: 'eesha_UT',
+    title: 'UT Austin: Eesha\'s senior portraits',
+    group: 'Texas',
+    x: 0.7,
+    y: 0.7,
+    track: 'https://soundcloud.com/paramore/i-caught-myself',
+    photos: [
+      { src: 'gallery/eesha_UT/eesha_besthookem.jpg', alt: 'The best hook \'em', caption: 'The best hook \'em' },
+      { src: 'gallery/eesha_UT/eesha_coolquote.jpg', alt: 'O Earth, what changes hast thou seen?', caption: 'O Earth, what changes hast thou seen?' },
+      { src: 'gallery/eesha_UT/eesha_fountain_front.jpg', alt: 'UT has such a pretty fountain', caption: 'UT has such a pretty fountain' },
+      { src: 'gallery/eesha_UT/eesha_fountain_side.jpg', alt: 'Fountain side profile', caption: 'Fountain side profile' },
+      { src: 'gallery/eesha_UT/eesha_herbuilding.jpg', alt: 'Eesha\'s building!', caption: 'Eesha\'s building!' },
+      { src: 'gallery/eesha_UT/eesha_hookemhigh.jpg', alt: 'Hook \'em high!', caption: 'Hook \'em high!' },
+      { src: 'gallery/eesha_UT/eesha_iconicUTtower.jpg', alt: 'Iconic UT tower shot', caption: 'Iconic UT tower shot' },
+      { src: 'gallery/eesha_UT/eesha_inthewind.jpg', alt: 'Stole blowing in the wind', caption: 'Stole blowing in the wind' },
+      { src: 'gallery/eesha_UT/eesha_meche.jpg', alt: 'She\'s a mechanical engineer now!!', caption: 'She\'s a mechanical engineer now!!' },
+      { src: 'gallery/eesha_UT/eesha_navierstokes1.jpg', alt: 'Guess this equation', caption: 'Guess this equation' },
+      { src: 'gallery/eesha_UT/eesha_navierstokes2.jpg', alt: 'Did you guess it?', caption: 'Did you guess it?' },
+      { src: 'gallery/eesha_UT/eesha_navierstokes3.jpg', alt: 'Remember Navier-Stokes? Do you even use it in your job?', caption: 'Remember Navier-Stokes? Do you even use it in your job?' },
+      { src: 'gallery/eesha_UT/eesha_orangeflowers.jpg', alt: 'Eesha matching with the flowers <3', caption: 'Eesha matching with the flowers <3' },
+      { src: 'gallery/eesha_UT/eesha_perfectlighting.jpg', alt: 'She looks so good in the sun :D', caption: 'She looks so good in the sun :D' },
+      { src: 'gallery/eesha_UT/eesha_prettydoors.jpg', alt: 'How is UT campus this pretty?', caption: 'How is UT campus this pretty?' },
+      { src: 'gallery/eesha_UT/eesha_prettygate.jpg', alt: 'Teal Victorian windows >>>', caption: 'Teal Victorian windows >>>' },
+      { src: 'gallery/eesha_UT/eesha_sideprofileofcolumbia.jpg', alt: 'Side profile of Columbia (not Poseidon)', caption: 'Side profile of Columbia (not Poseidon)' },
+      { src: 'gallery/eesha_UT/eesha_student.jpg', alt: 'Eesha, the student', caption: 'Eesha, the student' },
+      { src: 'gallery/eesha_UT/eesha_teal_door.jpg', alt: 'Teal is properly utilized at UT', caption: 'Teal is properly utilized at UT' },
+      { src: 'gallery/eesha_UT/eesha_tealdoorgoldenhr.jpg', alt: 'Next to the teal door during golden hour', caption: 'Next to the teal door during golden hour' },
+      { src: 'gallery/eesha_UT/eesha_universityoftexasataustin_sign.jpg', alt: 'UT Austin sign', caption: 'UT Austin sign' },
+      { src: 'gallery/eesha_UT/eesha_UTtower_framedbygate.jpg', alt: 'UT tower framed by gate', caption: 'UT tower framed by gate' },
+      { src: 'gallery/eesha_UT/eesha_UTtower_hardhat.jpg', alt: 'Safety first', caption: 'Safety first' },
+      { src: 'gallery/eesha_UT/eesha_UTtower_horns.jpg', alt: 'Horns up by the tower', caption: 'Horns up by the tower' },
+      
+    ],
+  },
+  {
+    slug: 'brazos_bend',
+    title: 'Brazos Bend State Park',
+    group: 'Texas',
+    x: 0.38,
+    y: 0.83,
+    track: 'https://soundcloud.com/iam-doechii/death-roll',
+    photos: [
+      { src: 'gallery/brazos_bend/brazosbend_alligatorcaution.jpg', alt: 'Cool sign', caption: 'Cool sign' },
+      { src: 'gallery/brazos_bend/brazosbend_butterfly.jpg', alt: 'Autumn monarch migration', caption: 'Autumn monarch migration' },
+      { src: 'gallery/brazos_bend/journaling.jpg', alt: 'Journaling in the peaceful swamp', caption: 'Journaling in the peaceful swamp' },
+      { src: 'gallery/brazos_bend/brazosbend_wildflowersunderliveoak.jpg', alt: 'Fairy habitat', caption: 'Fairy habitat' },
+      { src: 'gallery/brazos_bend/iconic_brazosbend_liveoak.jpg', alt: 'The liveliest of oaks in this swamp', caption: 'The liveliest of oaks in this swamp' },
+    
+    ],
+  },
+  {
+    slug: 'hill_country',
+    title: 'Hill Country',
+    group: 'Texas',
+    x: 0.66,
+    y: 0.66,
+    track: 'https://soundcloud.com/iam-doechii/alligator-bites-never-heal',
+    photos: [
+      { src: 'gallery/brazos_bend/brazosbend_alligatorcaution.jpg', alt: 'Cool sign', caption: 'Cool sign' },
+      { src: 'gallery/brazos_bend/brazosbend_butterfly.jpg', alt: 'Autumn monarch migration', caption: 'Autumn monarch migration' },
+      { src: 'gallery/brazos_bend/journaling.jpg', alt: 'Journaling in the peaceful swamp', caption: 'Journaling in the peaceful swamp' },
+      { src: 'gallery/brazos_bend/brazosbend_wildflowersunderliveoak.jpg', alt: 'Fairy habitat', caption: 'Fairy habitat' },
+      { src: 'gallery/brazos_bend/iconic_brazosbend_liveoak.jpg', alt: 'The liveliest of oaks in this swamp', caption: 'The liveliest of oaks in this swamp' },
+    
     ],
   },
   // Copy an album block above (from { to },) for each new album.
