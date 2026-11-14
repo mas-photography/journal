@@ -83,6 +83,8 @@ export const albums: Album[] = [
       { src: 'gallery/olympic/taking_a_rest.jpg', alt: 'Rest with a view', caption: 'Rest with a view' },
       { src: 'gallery/olympic/tree_of_life.jpg', alt: 'Tree of life', caption: 'Tree of life' },
       { src: 'gallery/olympic/vibes.jpg', alt: 'Vibes were good, but shadows were not', caption: 'Vibes were good, but shadows were not' },
+      { src: 'gallery/olympic/goodyear_shirt.jpg', alt: 'Goodyear shirt', caption: 'Goodyear shirt' },
+      { src: 'gallery/olympic/hoh_rainforest.jpg', alt: 'Hoh (not hoe) Rainforest', caption: 'Hoh (not hoe) Rainforest' },
     ],
   },
   {
