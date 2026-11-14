@@ -274,8 +274,8 @@ export const albums: Album[] = [
     slug: 'ringling',
     title: 'Ringling Museum of Art',
     group: 'Florida',
-    x: 0.999,
-    y: 0.999,
+    x: 0.9,
+    y: 0.9,
     track: 'https://soundcloud.com/xilinnuoyigao76111/hhjlx3qiwjrz',
     photos: [
       { src: 'gallery/ringling/ringling_afamilyofdeer.jpg', alt: 'A family of deer', caption: 'A family of deer' },
